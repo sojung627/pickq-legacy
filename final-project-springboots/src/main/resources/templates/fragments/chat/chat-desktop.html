@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="chat-desktop-view">
+    <div id="chatDesktopModalRoot"
+         class="hidden fixed bottom-6 right-6 z-[70] w-[860px] h-[520px] rounded-2xl border border-gray-200 bg-white shadow-xl overflow-hidden">
+        <div class="h-full flex">
+            <aside class="w-[36%] border-r border-gray-100 min-h-0 flex flex-col">
+                <div class="h-12 shrink-0 px-4 border-b border-gray-100 flex items-center justify-between">
+                    <p class="text-sm font-semibold text-gray-800">채팅 목록</p>
+                    <button id="chatDesktopCloseBtn" type="button"
+                            class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
+                        <i data-feather="x" class="w-4 h-4 text-gray-700"></i>
+                    </button>
+                </div>
+                <div id="chatDesktopRoomList" class="flex-1 min-h-0 overflow-y-auto"></div>
+            </aside>
+
+            <section class="w-[64%] min-h-0 flex flex-col">
+                <div id="chatDesktopPlaceholder"
+                     class="flex-1 flex items-center justify-center text-sm text-gray-400 bg-gray-50">
+                    채팅방을 선택해주세요.
+                </div>
+
+                <div id="chatDesktopConversationWrap" class="hidden h-full flex-1 min-h-0 flex-col">
+                    <div id="chatDesktopRoomTitle"
+                         class="h-12 shrink-0 px-4 border-b border-gray-100 text-sm font-semibold text-gray-700 flex items-center"></div>
+                    <div id="chatDesktopMessageList" class="flex-1 min-h-0 overflow-y-auto px-3 py-3 bg-gray-50"></div>
+                    <div class="shrink-0 border-t border-gray-100 bg-white px-3 py-2">
+                        <form id="chatDesktopComposeForm" class="flex items-center gap-2">
+                            <textarea id="chatDesktopMessageInput" rows="1"
+                                      class="flex-1 min-h-[40px] max-h-28 overflow-y-auto resize-none rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7CBD00]"
+                                      placeholder="메시지를 입력하세요"></textarea>
+                            <button type="submit"
+                                    class="shrink-0 h-10 px-3 rounded-xl bg-[#222222] text-white text-sm font-semibold hover:bg-[#333333]">전송</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.springbootstudy.bbs.mapper.BidMapper">
+	
+	<!-- 입찰 리스트 조회 (View 사용) -->
+	<select id="BidList" resultType="BidDTO">
+	    SELECT *
+		    FROM bid_list_view
+		    WHERE auction_idx = #{auctionIdx}
+		      AND bid_status_idx IN (1, 2, 3)  <!-- 진행중, 낙찰, 실패만 조회 -->
+		    ORDER BY bid_price ASC
+	</select>
+	
+	<!-- 입찰 단건 조회 (상세페이지)(View 사용) -->
+	<select id="findBidById" resultType="BidDTO">
+	    SELECT *
+		    FROM bid_list_view
+		    WHERE bid_idx = #{bidIdx}
+	</select>
+		
+	<!-- 입찰 삭제 - 소프트 딜리트 -->
+	<update id="softDeleteBid">
+	    UPDATE bid
+		    SET bid_status_idx = 4,
+		        bid_moddate = NOW()
+		    WHERE bid_idx = #{bidIdx}
+		      AND bidder_idx = #{bidderIdx}
+		      AND bid_status_idx = 1
+									AND auction_idx IN (
+												SELECT a.auction_idx
+												FROM auction a
+												WHERE a.auction_idx = bid.auction_idx
+													AND a.auction_status_idx = 1
+													AND a.auction_end_at > NOW()
+													AND a.auction_is_deleted = 'N'
+									)
+	</update>
+	
+	<!-- 입찰 삭제 - 관리자 (bidder_idx 조건 없음) -->
+	<update id="adminDeleteBid">
+	    UPDATE bid
+		    SET bid_status_idx = 5,
+		        bid_moddate = NOW()
+		    WHERE bid_idx = #{bidIdx}
+	</update>
+	
+	<!-- 아이템 등록 -->
+	<insert id="insertItem" useGeneratedKeys="true" keyProperty="itemIdx" keyColumn="item_idx">
+	    INSERT INTO item (
+	        item_name,
+	        item_category_idx,
+	        item_brand,
+	        item_thumbnail_img,
+	        item_condition,
+	        item_regdate,
+	        item_is_deleted
+	    ) VALUES (
+	        #{itemName},
+	        #{itemCategoryIdx},
+	        #{itemBrand},
+	        #{itemThumbnailImg},
+	        'NEW',
+	        NOW(),
+	        'N'
+	    )
+	</insert>
+	
+	<!-- 입찰 등록 -->
+	<insert id="insertBid" useGeneratedKeys="true" keyProperty="bidIdx" keyColumn="bid_idx">
+		INSERT INTO bid (
+			auction_idx,
+			bidder_idx,
+			item_idx,
+			bid_price,
+			bid_quantity,
+			bid_message,
+			bid_status_idx,
+			bid_regdate
+		)
+		SELECT
+			#{auctionIdx},
+			#{bidderIdx},
+			#{itemIdx},
+			#{bidPrice},
+			#{bidQuantity},
+			#{bidMessage},
+			1,
+			NOW()
+		FROM auction a
+		WHERE a.auction_idx = #{auctionIdx}
+		  AND a.auction_status_idx = 1
+		  AND a.auction_end_at > NOW()
+		  AND a.auction_is_deleted = 'N'
+	</insert>
+
+	<!-- 특정 경매에 입찰한 회원 목록 -->
+	<select id="findDistinctBidderIdxByAuction" resultType="long">
+	    SELECT DISTINCT bidder_idx
+	    FROM bid
+	    WHERE auction_idx = #{auctionIdx}
+	      AND bid_status_idx IN (1, 2, 3)
+	</select>
+	
+	<!-- 특정 입찰 낙찰 처리 -->
+	<update id="selectWinnerBid">
+	    UPDATE bid
+		    SET bid_status_idx = 2,
+		        bid_moddate = NOW()
+		    WHERE bid_idx = #{bidIdx}
+		      AND auction_idx = #{auctionIdx}
+	</update>
+	
+	<!-- 해당 경매의 나머지 입찰 실패 처리 -->
+	<update id="rejectOtherBids">
+	    UPDATE bid
+		    SET bid_status_idx = 3,
+		        bid_moddate = NOW()
+		    WHERE auction_idx = #{auctionIdx}
+		      AND bid_idx != #{bidIdx}
+		      AND bid_status_idx = 1
+	</update>
+	
+	<!-- 경매 취소 시 해당 경매의 진행중(1) 입찰 전부 취소(4) 처리 -->
+	<update id="cancelBidsByAuction">
+	    UPDATE bid
+		    SET bid_status_idx = 4,
+		        bid_moddate = NOW()
+		    WHERE auction_idx = #{auctionIdx}
+		      AND bid_status_idx = 1
+	</update>
+	
+</mapper>	
+
+
+

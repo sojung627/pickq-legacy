@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--	
+	마이바티스 참고 사이트
+	  - http://blog.mybatis.org/
+	  - http://www.mybatis.org/mybatis-3/ko/index.html
+	  
+	@Mapper 애노테이션이 적용된 인터페이스와 맵퍼 XML파일은
+	namespace 속성으로 연결되기 때문에 맵퍼 XML의 namespace를
+	지정할 때 @Mapper 애노테이션이 적용된 맵퍼 인터페이스의
+	완전한 클래스 이름(패키지를 포함한 이름)을 지정하면 된다.   
+-->
+<mapper namespace="com.springbootstudy.bbs.mapper.MemberProfileMapper" >
+
+	<!-- 조회 -->
+    <select id="selectProfileByMemIdx" resultType="com.springbootstudy.bbs.domain.MemberProfileVO">
+	    SELECT
+	        mem_idx       AS memIdx,
+	        mem_nickname  AS memNickname,
+	        mem_intro     AS memIntro,
+	        mem_img       AS memImg
+	    FROM member_profile
+	    WHERE mem_idx = #{memIdx}
+	</select>
+
+    <!-- 공개 프로필 조회 (회원 + 프로필 + 등급 + 리뷰 집계) -->
+    <select id="selectProfilePageByMemIdx" resultType="com.springbootstudy.bbs.dto.ProfilePageDTO">
+        SELECT
+            m.mem_idx AS memIdx,
+            m.mem_id AS memId,
+            m.mem_name AS memName,
+            mp.mem_nickname AS memNickname,
+            mp.mem_intro AS memIntro,
+            mp.mem_img AS memImg,
+            g.grade_name AS gradeName,
+            IFNULL(rv.avg_rating, 0) AS avgRating,
+            IFNULL(rv.review_count, 0) AS reviewCount
+        FROM member m
+        LEFT JOIN member_profile mp ON m.mem_idx = mp.mem_idx
+        LEFT JOIN grade g ON m.mem_grade_idx = g.grade_idx
+        LEFT JOIN (
+            SELECT
+                bidder_idx,
+                AVG(review_star) AS avg_rating,
+                COUNT(*) AS review_count
+            FROM review
+            WHERE review_is_deleted = 'N'
+            GROUP BY bidder_idx
+        ) rv ON m.mem_idx = rv.bidder_idx
+        WHERE m.mem_idx = #{memIdx}
+          AND m.mem_is_deleted = 'N'
+    </select>
+
+    <!-- 등록 -->
+    <insert id="insertProfile">
+        INSERT INTO member_profile (
+            mem_idx,
+            mem_nickname,
+            mem_intro,
+            mem_img
+        )
+        VALUES (
+            #{memIdx},
+            #{memNickname},
+            #{memIntro},
+            #{memImg}
+        )
+    </insert>
+
+    <!-- 수정 -->
+    <update id="updateProfile">
+        UPDATE member_profile
+        SET 
+            mem_nickname = #{memNickname},
+            mem_intro    = #{memIntro},
+            mem_img      = #{memImg}
+        WHERE mem_idx = #{memIdx}
+    </update>
+    
+    <!-- 닉네임 중복 체크 -->
+	<select id="countByNickname" resultType="int">
+	    SELECT COUNT(*)
+	    FROM member_profile
+	    WHERE mem_nickname = #{memNickname}
+	</select>
+
+</mapper>	
+

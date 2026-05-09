@@ -1,0 +1,29 @@
+body,
+input,
+textarea,
+button,
+select {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    font-size: 17px;
+    line-height: 1.65;
+    letter-spacing: -0.01em;
+    color: #222;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+p, li, td, th, label, span, a, button {
+    letter-spacing: -0.01em;
+}
+
+svg.feather,
+i[data-feather] {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+    flex-shrink: 0;
+}

@@ -1,0 +1,53 @@
+[프로젝트 개발환경/언어/스킬 정리]
+프로젝트명: 스포츠 용품 역경매 기반 거래 플랫폼 PickQ
+루트: final-project-springboots
+
+1) 실행/개발 환경
+- OS(개발 컨테이너 기준): Ubuntu 24.04.4 LTS
+- JDK: Java 21 (build.gradle toolchain)
+- 프레임워크: Spring Boot 3.5.0
+- WAS: Spring Boot 내장 Tomcat (Servlet 기반)
+- 빌드 도구: Gradle (Wrapper 사용)
+- 데이터베이스: MySQL (application.properties: final DB)
+- 형상관리: Git, GitHub (브랜치 기반 협업)
+- 템플릿/뷰: Thymeleaf + Thymeleaf Layout Dialect
+- 인코딩: UTF-8
+
+2) 백엔드 언어/프레임워크/라이브러리
+- Language: Java
+- Spring Boot Starter Web (MVC)
+- Spring Boot Starter Thymeleaf (SSR)
+- MyBatis Spring Boot Starter 3.0.3 (SQL Mapper 기반)
+- Lombok (보일러플레이트 감소)
+- Spring Boot DevTools (개발 편의)
+- MySQL Connector/J
+- Solapi SDK (문자 인증)
+- Spring Boot Starter WebSocket (실시간 기능)
+
+3) 프론트엔드/정적 자원
+- HTML + Thymeleaf 템플릿
+- CSS + Bootstrap
+- JavaScript (jQuery 포함)
+- Summernote 이미지 업로드 연동
+
+4) 핵심 적용 스킬/기술 키워드
+- WebSocket + STOMP 메시징
+- SockJS 폴백 연결
+- 실시간 알림 푸시(topic 기반)
+- 실시간 채팅(채팅방 단위 브로드캐스트)
+- MyBatis XML 매퍼 기반 SQL 분리
+- 세션 기반 인증/인가 처리
+- Interceptor 기반 로그인 리다이렉트 제어
+- 파일 업로드(멀티파트)
+- 결제 승인/배송/구매확정 API 흐름
+- 역경매 상태 전이(진행/마감/유찰/낙찰)
+
+5) 협업/문서/디자인 도구(README 기준)
+- GitHub Issues / Projects
+- Notion
+- Figma
+- Swagger/OpenAPI (기획/문서화 도구로 언급)
+
+6) IDE/개발 툴 메모
+- 코드 주석에 Eclipse 실행환경 관련 설정 안내가 존재
+- 부트캠프 실습 맥락상 STS(Eclipse 계열) 또는 IntelliJ/VS Code 사용 가능

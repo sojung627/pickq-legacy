@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbootstudy.bbs.mapper.AuctionMapper">
+
+    <!-- 경매 리스트 조회 - 카테고리 코드 + 키워드 모두 지원 (View 사용) -->
+    <select id="auctionList" parameterType="map" resultType="AuctionDTO">
+	    SELECT *
+	    FROM auction_list_view
+	    WHERE auction_is_deleted = 'N'
+	
+	    <choose>
+		    <when test="statusFilter == 'closed'">
+		        <!-- 마감된 경매: 결정대기(2), 마감(3), 유찰(4), 취소(5) 한번에 -->
+		        AND auction_status_idx IN (2, 3, 4, 5)
+		    </when>
+		    <otherwise>
+		        <!-- 기본(진행중): 1번만 -->
+		        AND auction_status_idx = 1
+		    </otherwise>
+		</choose>
+	
+	    <if test="categoryCode != null and categoryCode != ''">
+	        AND UPPER(item_category_code) LIKE UPPER(CONCAT('%', #{categoryCode}, '%'))
+	    </if>
+	    <if test="keyword != null and keyword != ''">
+	        AND (
+	            auction_title LIKE CONCAT('%', #{keyword}, '%')
+	            OR auction_desc  LIKE CONCAT('%', #{keyword}, '%')
+	            OR item_category_name LIKE CONCAT('%', #{keyword}, '%')
+	        )
+	    </if>
+	
+	    <choose>
+	        <when test="sortBy == 'views'">
+	            ORDER BY auction_view_count DESC, auction_regdate DESC
+	        </when>
+	        <when test="sortBy == 'deadline'">
+	            ORDER BY
+	                CASE WHEN auction_status_idx = 1 THEN 0 ELSE 1 END ASC,
+	                auction_end_at ASC
+	        </when>
+	        <otherwise>
+	            ORDER BY auction_regdate DESC
+	        </otherwise>
+	    </choose>
+	</select>
+	
+    <!-- 경매 상세 조회 (View 사용) -->
+	<select id="auctionDetail" resultType="AuctionDTO">
+	    SELECT *
+	    FROM auction_detail_view
+	    WHERE auction_idx = #{auctionIdx}
+	      AND auction_is_deleted = 'N'
+	</select>
+
+    <!-- 마감 처리할 경매 조회 -->
+    <select id="findExpiredAuctions" resultType="AuctionDTO">
+        SELECT
+            a.auction_idx,
+            a.buyer_idx,
+            a.auction_end_at,
+            a.auction_status_idx,
+            (SELECT COUNT(*) FROM bid b WHERE b.auction_idx = a.auction_idx AND b.bid_status_idx = 1) AS bidCount
+        FROM auction a
+        <!-- LEFT JOIN bid b ON a.auction_idx = b.auction_idx
+            AND b.bid_status_idx != 5 -->
+        WHERE a.auction_status_idx = 1
+          AND a.auction_end_at &lt; NOW()
+          AND a.auction_is_deleted = 'N'
+        GROUP BY a.auction_idx, a.buyer_idx, a.auction_end_at, a.auction_status_idx
+    </select>
+	
+	<!-- 결정마감일이 지난 결정대기(2) 경매 조회 → 모두 유찰 처리용 -->
+	<select id="findExpiredDecisions" resultType="AuctionDTO">
+	    SELECT
+	        a.auction_idx,
+	        a.auction_status_idx
+	    FROM auction a
+	    WHERE a.auction_status_idx = 2
+	      AND a.auction_decision_deadline &lt; NOW()
+	      AND a.auction_is_deleted = 'N'
+	</select>
+	
+    <!-- 경매 상태 업데이트 -->
+    <update id="updateAuctionStatus">
+        UPDATE auction
+        SET auction_status_idx = #{statusIdx}
+        WHERE auction_idx = #{auctionIdx}
+    </update>
+
+    <!-- 경매 취소 - 사용자 (is_deleted=N 유지, status=5) → 리스트에 보임 -->
+	<update id="softDeleteAuction">
+	    UPDATE auction
+	    SET auction_status_idx = 5,
+	        auction_deldate = NOW()
+	    WHERE auction_idx = #{auctionIdx}
+	      AND buyer_idx = #{buyerIdx}
+	</update>
+	
+	<!-- 경매 삭제 - 관리자 (is_deleted=Y, status=6) → 리스트에 안 보임 -->
+	<update id="adminDeleteAuction">
+	    UPDATE auction
+	    SET auction_is_deleted = 'Y',
+	        auction_status_idx = 6,
+	        auction_deldate = NOW()
+	    WHERE auction_idx = #{auctionIdx}
+	</update>
+
+    <!-- 경매 등록 -->
+    <insert id="insertAuction">
+        INSERT INTO auction (
+            buyer_idx, item_category_idx, auction_thumbnail_img,
+            auction_title, auction_desc,
+            auction_target_price, auction_start_at, auction_end_at,
+            auction_decision_deadline, auction_status_idx, auction_regdate
+        ) VALUES (
+            #{buyerIdx}, #{itemCategoryIdx}, #{auctionThumbnailImg},
+            #{auctionTitle}, #{auctionDesc},
+            #{auctionTargetPrice}, NOW(), #{auctionEndAt},
+            #{auctionDecisionDeadline}, 1, NOW()
+        )
+    </insert>
+
+</mapper>
+

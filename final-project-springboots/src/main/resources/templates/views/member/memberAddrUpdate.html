@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>배송지 수정 - PickQ</title>
+
+<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+<script type="text/javascript">
+    // 페이지 로드하면 이전 값 저장
+    let originalValues = {};
+
+    window.addEventListener("DOMContentLoaded", function() {
+      originalValues = {
+        zipcode: document.getElementById("memZipcode").value,
+        addr: document.getElementById("memAddr").value,
+        addrDetail: document.getElementById("memAddrDetail").value,
+        isPrimary: document.getElementById("isPrimary").checked
+      };
+    });
+
+    // 주소창 띄우기
+    function findAddr() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          $("#memZipcode").val(data.zonecode);
+          $("#memAddr").val(data.address);
+          $("#memAddrDetail").val("").focus();
+          checkAddrValid();
+        }
+      }).open();
+    }
+
+    // 주소 저장 버튼
+    function saveAddr() {
+      const memZipcode    = document.getElementById("memZipcode").value;
+      const memAddr       = document.getElementById("memAddr").value;
+      const memAddrDetail = document.getElementById("memAddrDetail").value;
+      const isPrimaryCheckbox = document.getElementById("isPrimary");
+      const isPrimary = isPrimaryCheckbox.checked ? "Y" : "N";
+      const addrIdx = document.getElementById("addrIdx").value;
+
+      const memidxInput = document.getElementById("memIdx");
+      if (!memidxInput || memidxInput.value === "" || memidxInput.value === "0") {
+        alert("로그인 정보가 없습니다");
+        location.href = "members/login";
+        return;
+      }
+
+      const sendIdx = memidxInput.value;
+
+      if (memZipcode === "" || memAddr === "") {
+        alert("주소를 전부 입력해주세요");
+        return;
+      }
+
+      fetch("/member/updateAddrAjax.do", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body:
+            "addrIdx=" + encodeURIComponent(addrIdx) +
+            "&memZipcode=" + encodeURIComponent(memZipcode) +
+            "&memAddr=" + encodeURIComponent(memAddr) +
+            "&memAddrDetail=" + encodeURIComponent(memAddrDetail) +
+            "&memIdx=" + encodeURIComponent(sendIdx) +
+            "&isPrimary=" + encodeURIComponent(isPrimary)
+      })
+          .then(res => res.text())
+          .then(result => {
+            if (result.trim() === "1") {
+              alert("✓ 성공적으로 수정되었습니다!");
+              location.href = "/mypage/addresses";
+            } else {
+              alert("✗ 저장 실패: 다시 시도해 주세요");
+            }
+          })
+          .catch(err => console.log("에러 발생: ", err));
+    }
+
+    // 변경 여부 체크
+    function isChanged() {
+      const memZipcode    = document.getElementById("memZipcode").value.trim();
+      const memAddr       = document.getElementById("memAddr").value.trim();
+      const memAddrDetail = document.getElementById("memAddrDetail").value.trim();
+      const isPrimary     = document.getElementById("isPrimary").checked;
+
+      return (
+          memZipcode    !== originalValues.zipcode   ||
+          memAddr       !== originalValues.addr      ||
+          memAddrDetail !== originalValues.addrDetail ||
+          isPrimary     !== originalValues.isPrimary
+      );
+    }
+
+    // 버튼 활성화 및 메시지
+    function checkAddrValid() {
+      const memZipcode = document.getElementById("memZipcode").value.trim();
+      const memAddr = document.getElementById("memAddr").value.trim();
+      const memAddrDetail = document.getElementById("memAddrDetail").value.trim();
+
+      const saveBtn = document.getElementById("saveBtn");
+      const noChangeMsg = document.getElementById("noChangeMsg");
+
+      if (memZipcode === "" || memAddr === "" || memAddrDetail === "") {
+        saveBtn.disabled = true;
+        noChangeMsg.style.display = "none";
+        return;
+      }
+
+      if (isChanged()) {
+        saveBtn.disabled = false;
+        noChangeMsg.style.display = "none";
+      } else {
+        saveBtn.disabled = true;
+        noChangeMsg.style.display = "inline";
+      }
+    }
+  </script>
+</head>
+<body>
+	<div layout:fragment="content">
+
+		<div
+			class="border border-gray-200 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+			<!-- 헤더 -->
+			<div class="px-6 py-5 border-b border-gray-100">
+				<h2 class="text-lg sm:text-xl font-bold text-gray-900">배송지 수정</h2>
+				<p class="mt-1 text-xs sm:text-sm text-gray-600">선택한 배송지 정보를
+					수정합니다.</p>
+			</div>
+
+			<!-- 폼 내용 -->
+			<div class="px-6 py-6">
+				<form action="/mypage/addresses" id="memberAddrUpdate" method="post"
+					class="space-y-5">
+
+					<input type="hidden" id="memIdx" name="memIdx"
+						th:value="${member.memIdx}"> <input type="hidden"
+						id="addrIdx" name="addrIdx" th:value="${addr.addrIdx}">
+
+					<!-- 대표 주소 체크 -->
+					<div class="flex items-center gap-2">
+						<input type="checkbox" id="isPrimary" name="isPrimary" value="Y"
+							th:checked="${addr.isPrimary == 'Y'}" onchange="checkAddrValid()"
+							class="h-4 w-4 rounded border-gray-300 text-[#7CBD00] focus:ring-[#7CBD00]">
+						<label for="isPrimary" class="text-sm text-gray-900"> 대표
+							주소지로 수정하기 </label>
+					</div>
+
+					<!-- 주소 입력 영역 -->
+					<div class="space-y-3">
+						<div class="flex gap-2">
+							<input type="text" id="memZipcode" name="memZipcode"
+								placeholder="✉️ 우편번호" th:value="${addr.memZipcode}" readonly
+								class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-gray-50 cursor-not-allowed" />
+							<input type="button" value="우편번호 찾기" onclick="findAddr()"
+								class="px-3 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer" />
+						</div>
+
+						<div>
+							<input type="text" id="memAddr" name="memAddr"
+								placeholder="🏠 주소" th:value="${addr.memAddr}" readonly
+								class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-gray-50 cursor-not-allowed" />
+						</div>
+
+						<div>
+							<input type="text" id="memAddrDetail" name="memAddrDetail"
+								placeholder="🏠 상세주소" th:value="${addr.memAddrDetail}"
+								oninput="checkAddrValid()"
+								class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-[#7CBD00]" />
+						</div>
+					</div>
+
+					<!-- 저장 버튼 + 변경 없음 메시지 -->
+					<div class="pt-1 flex items-center gap-2">
+						<input type="button" id="saveBtn" value="주소 저장"
+							onclick="saveAddr()" disabled
+							class="inline-flex items-center justify-center px-4 py-2.5 bg-[#7CBD00] text-white rounded-md text-sm font-semibold hover:bg-[#6BAD00] disabled:bg-gray-300 disabled:cursor-not-allowed cursor-pointer" />
+						<span id="noChangeMsg"
+							style="display: none; color: #e74c3c; font-size: 13px; margin-left: 8px;">
+							수정된 정보가 없습니다 </span>
+					</div>
+
+				</form>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

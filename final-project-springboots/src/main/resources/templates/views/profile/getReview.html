@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main_layout}">
+<head>
+<meta charset="UTF-8">
+<title>리뷰 상세</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+  <section class="max-w-4xl mx-auto px-4 py-6 md:py-8">
+    <div class="mb-4 md:mb-6">
+      <a th:href="${reviewBackUrl}"
+         class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
+        <span>←</span><span>뒤로</span>
+      </a>
+    </div>
+
+    <article class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 md:p-7">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="text-amber-600 text-base md:text-lg font-semibold">
+          ★ <span th:text="${#numbers.formatDecimal(review.reviewStar != null ? review.reviewStar : 0, 1, 1)}">5.0</span>
+        </div>
+        <div class="text-sm text-gray-500" th:text="${#temporals.format(review.reviewRegdate, 'yyyy-MM-dd')}">2026-04-18</div>
+      </div>
+
+      <h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-2" th:text="${review.reviewTitle}">리뷰 제목</h1>
+
+      <div class="text-sm text-gray-600 mb-5">
+        작성자
+        <strong class="text-gray-800" th:text="${review.reviewerNickname}">작성자닉네임</strong>
+      </div>
+
+      <div class="rounded-xl bg-gray-50 border border-gray-200 p-4 md:p-5 text-sm md:text-base text-gray-700 leading-relaxed whitespace-pre-line"
+           th:text="${review.reviewContent}">
+        리뷰 본문
+      </div>
+    </article>
+
+    <section class="mt-6 bg-white rounded-2xl border border-gray-200 p-5 md:p-6">
+      <h2 class="text-base md:text-lg font-bold text-gray-900 mb-4">거래 정보</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-gray-500 mb-1">거래 상품</p>
+          <p class="text-gray-900 font-medium" th:text="${review.itemName != null and review.itemName != '' ? review.itemName : review.auctionTitle}">상품명</p>
+        </div>
+        <div>
+          <p class="text-gray-500 mb-1">거래일</p>
+          <p class="text-gray-900 font-medium" th:text="${review.tradeDate != null ? #temporals.format(review.tradeDate, 'yyyy-MM-dd') : '-'}">2026-04-18</p>
+        </div>
+      </div>
+
+      <div class="mt-4 border-t pt-4">
+        <p class="text-gray-500 text-sm mb-1">거래 상대</p>
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-gray-900" th:text="${review.profileNickname}">상대닉네임</span>
+          <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 border border-emerald-200"
+                th:text="${review.profileGradeName != null ? review.profileGradeName : '기본'}">기본</span>
+        </div>
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-2">
+        <a th:href="@{/profile/{memIdx}(memIdx=${review.profileMemIdx}, from=${from}, auctionId=${auctionId})}"
+           class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+          판매자 프로필 보기
+        </a>
+        <a th:href="@{/auctions/{auctionIdx}(auctionIdx=${review.auctionIdx})}"
+           class="inline-flex items-center justify-center rounded-lg bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-800">
+          거래 상품 보기
+        </a>
+      </div>
+    </section>
+  </section>
+</th:block>
+</body>
+</html>

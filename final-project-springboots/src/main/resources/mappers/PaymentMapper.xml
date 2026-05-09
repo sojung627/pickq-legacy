@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--	
+	마이바티스 참고 사이트
+	  - http://blog.mybatis.org/
+	  - http://www.mybatis.org/mybatis-3/ko/index.html
+	  
+	@Mapper 애노테이션이 적용된 인터페이스와 맵퍼 XML파일은
+	namespace 속성으로 연결되기 때문에 맵퍼 XML의 namespace를
+	지정할 때 @Mapper 애노테이션이 적용된 맵퍼 인터페이스의
+	완전한 클래스 이름(패키지를 포함한 이름)을 지정하면 된다.   
+-->
+<mapper namespace="com.springbootstudy.bbs.mapper.PaymentMapper">
+
+    <!-- 결제 정보 저장 -->
+    <insert id="insertPayment" parameterType="com.springbootstudy.bbs.domain.PaymentVO"
+        useGeneratedKeys="true" keyProperty="payIdx"> INSERT INTO payment ( bid_idx, mem_idx,
+        payment_key, order_id, pay_method, pay_amount, pay_status, buyer_name, buyer_tel,
+        buyer_addr, buyer_zipcode, pay_regdate ) VALUES ( #{bidIdx}, #{memIdx}, #{paymentKey},
+        #{orderId}, #{payMethod}, #{payAmount}, 'READY', #{buyerName}, #{buyerTel}, #{buyerAddr},
+        #{buyerZipcode}, NOW() ) </insert>
+
+    <!-- 결제 상태 변경 (READY → DONE) -->
+    <update id="updatePaymentStatus"> UPDATE payment SET pay_status = 'DONE' WHERE order_id =
+        #{orderId} </update>
+
+    <!-- 구매자 수령 확인 -->
+    <update id="updateConfirmedAt"> UPDATE payment SET confirmed_at = NOW(), pay_status =
+        'CONFIRMED' WHERE bid_idx = #{bidIdx} </update>
+
+    <!-- 판매자 거래 취소 시 환불(에스크로 취소) 처리 -->
+    <update id="cancelEscrowPaymentByBidIdx">
+        UPDATE payment
+        SET pay_status = 'CANCELED',
+            canceled_at = CASE WHEN canceled_at IS NULL THEN NOW() ELSE canceled_at END
+        WHERE bid_idx = #{bidIdx}
+          AND pay_status = 'DONE'
+    </update>
+
+    <!-- 결제 정보 조회 (중복결제 체크 및 pay_idx 조회용) -->
+    <select id="findPaymentByBidIdx" resultType="com.springbootstudy.bbs.domain.PaymentVO"> SELECT *
+        FROM payment WHERE bid_idx = #{bidIdx} AND pay_status IN ('DONE', 'CONFIRMED') LIMIT 1 </select>
+
+</mapper>	

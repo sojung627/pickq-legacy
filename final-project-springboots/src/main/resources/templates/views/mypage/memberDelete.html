@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>회원탈퇴 - 마이페이지</title>
+</head>
+<body>
+	<div layout:fragment="content">
+
+		<form th:action="@{/memberDelete}" method="post" class="space-y-6">
+
+			<div
+				class="border border-red-200 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+				<!-- 헤더 -->
+				<div class="px-6 py-5 border-b border-red-100">
+					<h2 class="text-lg sm:text-xl font-bold text-red-600">회원탈퇴</h2>
+					<p class="mt-1 text-xs sm:text-sm text-gray-600">회원 탈퇴 시 모든 정보가
+						삭제됩니다</p>
+				</div>
+
+				<!-- 내용 -->
+				<div class="px-6 py-6 sm:py-7 space-y-6">
+
+					<!-- 경고 박스 -->
+					<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+						<h3 class="font-semibold text-red-900 mb-2 text-sm sm:text-base">
+							⚠️ 탈퇴 전 확인사항</h3>
+						<ul
+							class="text-xs sm:text-sm text-red-700 space-y-1 list-disc list-inside">
+							<li>회원 탈퇴 시 모든 개인정보가 삭제됩니다.</li>
+							<li>진행 중인 경매/입찰 내역이 모두 취소됩니다.</li>
+							<li>작성한 게시글과 댓글은 삭제되지 않습니다.</li>
+							<li>탈퇴 후 같은 아이디로 재가입이 불가능합니다.</li>
+							<li>탈퇴 처리 후 복구가 불가능합니다.</li>
+						</ul>
+					</div>
+
+					<!-- 1차 버튼 영역: 확인 단계로 진입 -->
+					<div id="delete-step-1" class="space-y-3"
+						th:if="${confirmStep == null or !confirmStep}">
+						<button type="button"
+							class="w-full inline-flex items-center justify-center px-4 py-2.5 border border-red-300 rounded-md text-sm font-medium text-red-600 hover:bg-red-50"
+							onclick="document.getElementById('delete-confirm-box').classList.remove('hidden');
+                           document.getElementById('delete-step-1').classList.add('hidden');">
+							<span class="mr-2"> <i class="bi bi-trash3"></i>
+							</span> 회원 탈퇴하기
+						</button>
+					</div>
+
+					<!-- 2차 확인 단계 -->
+					<div id="delete-confirm-box" class="space-y-4 hidden">
+						<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+							<p class="text-xs sm:text-sm text-yellow-900 font-semibold">
+								정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+						</div>
+						<div class="flex flex-col sm:flex-row gap-2">
+							<button type="button"
+								class="flex-1 inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+								onclick="document.getElementById('delete-confirm-box').classList.add('hidden');
+                             document.getElementById('delete-step-1').classList.remove('hidden');">
+								취소</button>
+							<button type="submit"
+								class="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-red-600 text-white rounded-md text-sm font-semibold hover:bg-red-700">
+								탈퇴 확정</button>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+		</form>
+
+	</div>
+</body>
+</html>

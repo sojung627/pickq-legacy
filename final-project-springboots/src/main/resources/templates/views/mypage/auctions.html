@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>내 경매 목록 - PickQ</title>
+</head>
+<body>
+	<main layout:fragment="content">
+
+		<div
+			class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+
+			<!-- 헤더 -->
+			<div
+				class="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+				<div>
+					<h2 class="text-lg sm:text-xl font-semibold text-[#222222]">나의
+						경매 목록</h2>
+					<p class="mt-1 text-xs sm:text-sm text-[#767676]">내가 등록한 구매 요청
+						목록</p>
+				</div>
+				<div>
+					<a href="/mypage/payments"
+						class="inline-flex items-center px-4 py-2.5 rounded-md border border-gray-300 text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+						구매 내역 보기 </a>
+				</div>
+			</div>
+
+			<!-- 본문 -->
+			<div class="px-4 py-4 sm:px-6 sm:py-5">
+
+				<!-- 비어있을 때 -->
+				<div th:if="${#lists.isEmpty(auctions)}"
+					class="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-lg">
+					등록한 경매가 없습니다.</div>
+
+				<!-- 데이터 있을 때 -->
+				<div th:if="${!#lists.isEmpty(auctions)}" class="space-y-3">
+
+					<!-- 데스크탑: 헤더 라인 -->
+					<div
+						class="hidden md:grid md:grid-cols-[2.8fr_1.6fr_1.3fr_1.1fr_1.3fr_1.4fr_1.5fr] text-[11px] text-gray-500 px-2 pb-2 border-b border-gray-100">
+						<span>경매 제목</span> <span>카테고리</span> <span class="text-right">희망
+							최대가</span> <span class="text-center">입찰 수</span> <span
+							class="text-right">최저 입찰가</span> <span class="text-center">상태</span>
+						<span class="text-center">마감일</span>
+					</div>
+
+					<!-- 각 경매 카드/행 -->
+					<div th:each="auction : ${auctions}"
+						class="cursor-pointer rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 sm:px-5 sm:py-4 hover:border-[#7CBD00] transition-colors">
+
+						<!-- 데스크탑: 테이블 스타일 -->
+						<div
+							class="hidden md:grid md:grid-cols-[2.8fr_1.6fr_1.3fr_1.1fr_1.3fr_1.4fr_1.5fr] items-center text-xs sm:text-sm gap-2"
+							th:onclick="|location.href='@{/auctions/{idx}(idx=${auction.auctionIdx})}'|">
+
+							<!-- 제목 -->
+							<div class="truncate">
+								<a th:href="@{/auctions/{idx}(idx=${auction.auctionIdx})}"
+									th:text="${auction.auctionTitle}"
+									class="text-[#222222] font-semibold hover:underline"> </a>
+							</div>
+
+							<!-- 카테고리 -->
+							<div class="text-[11px] sm:text-xs text-gray-600"
+								th:text="${auction.itemCategoryName}"></div>
+
+							<!-- 희망 최대가 -->
+							<div class="text-right font-semibold text-[#222222]"
+								th:text="${#numbers.formatInteger(auction.auctionTargetPrice, 0, 'COMMA') + '원'}">
+							</div>
+
+							<!-- 입찰 수 -->
+							<div class="text-center text-gray-700"
+								th:text="${auction.bidCount}"></div>
+
+							<!-- 최저 입찰가 -->
+							<div class="text-right font-semibold"
+								th:classappend="${auction.minBidPrice == null or auction.minBidPrice == 0} ? ' text-gray-500' : ' text-[#7CBD00]'"
+								th:text="${auction.minBidPrice == null or auction.minBidPrice == 0 ? '-' : #numbers.formatInteger(auction.minBidPrice, 0, 'COMMA') + '원'}">
+							</div>
+
+							<!-- 상태 -->
+							<div class="text-center">
+								<span
+									class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold"
+									th:if="${auction.auctionStatusIdx == 1}"
+									style="background: #E6F4D6; color: #4C7C00;"
+									th:text="${auction.auctionStatusName}"> </span> <span
+									class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold bg-gray-100 text-gray-600"
+									th:if="${auction.auctionStatusIdx == 3}"
+									th:text="${auction.auctionStatusName}"> </span> <span
+									class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold bg-gray-100 text-gray-500"
+									th:if="${auction.auctionStatusIdx != 1 and auction.auctionStatusIdx != 3}"
+									th:text="${auction.auctionStatusName}"> </span>
+							</div>
+
+							<!-- 마감일 -->
+							<div class="text-center text-[11px] text-[#555555]"
+								th:text="${#temporals.format(auction.auctionEndAt, 'yyyy-MM-dd HH:mm')}">
+							</div>
+
+						</div>
+
+						<div class="mt-3 pt-3 border-t border-gray-200"
+							th:if="${auction.auctionStatusIdx == 3 and auction.winnerBidIdx != null}">
+							<div class="text-[11px] text-gray-500 mb-1">낙찰 요약</div>
+							<div class="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs">
+								<span class="inline-flex items-center rounded-full bg-[#F3FAE8] px-2.5 py-1 font-semibold text-[#4C7C00]"
+									th:text="${'낙찰 상품: ' + (auction.winnerItemName != null ? auction.winnerItemName : '-')}">낙찰 상품: -</span>
+								<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 font-semibold text-gray-700"
+									th:text="${'낙찰가: ' + (auction.winnerBidPrice != null ? #numbers.formatInteger(auction.winnerBidPrice, 0, 'COMMA') + '원' : '-')}">낙찰가: -</span>
+								<span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-gray-700"
+									th:text="${'낙찰자: ' + (auction.winnerBidderMemIdMasked != null ? auction.winnerBidderMemIdMasked : '-')}">낙찰자: -</span>
+							</div>
+						</div>
+
+						<!-- 모바일: 카드 형태 -->
+						<div class="md:hidden space-y-2"
+							th:onclick="|location.href='@{/auctions/{idx}(idx=${auction.auctionIdx})}'|">
+							<!-- 제목 + 상태 -->
+							<div class="flex justify-between items-start gap-2">
+								<div>
+									<div class="text-sm font-semibold text-[#222222]"
+										th:text="${auction.auctionTitle}"></div>
+									<div class="mt-0.5 text-[11px] text-[#999999]"
+										th:text="${auction.itemCategoryName}"></div>
+								</div>
+								<div>
+									<span
+										class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+										th:if="${auction.auctionStatusIdx == 1}"
+										style="background: #E6F4D6; color: #4C7C00;"
+										th:text="${auction.auctionStatusName}"> </span> <span
+										class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-gray-100 text-gray-600"
+										th:if="${auction.auctionStatusIdx == 3}"
+										th:text="${auction.auctionStatusName}"> </span> <span
+										class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-gray-100 text-gray-500"
+										th:if="${auction.auctionStatusIdx != 1 and auction.auctionStatusIdx != 3}"
+										th:text="${auction.auctionStatusName}"> </span>
+								</div>
+							</div>
+
+							<!-- 금액/입찰/마감일 -->
+							<div class="grid grid-cols-2 gap-2 text-[11px] text-gray-600">
+								<div>
+									<div class="text-gray-400">희망 최대가</div>
+									<div class="font-semibold text-[#222222]"
+										th:text="${#numbers.formatInteger(auction.auctionTargetPrice, 0, 'COMMA') + '원'}"></div>
+								</div>
+								<div>
+									<div class="text-gray-400">최저 입찰가</div>
+									<div class="font-semibold"
+										th:classappend="${auction.minBidPrice == null or auction.minBidPrice == 0} ? ' text-gray-500' : ' text-[#7CBD00]'"
+										th:text="${auction.minBidPrice == null or auction.minBidPrice == 0 ? '-' : #numbers.formatInteger(auction.minBidPrice, 0, 'COMMA') + '원'}"></div>
+								</div>
+								<div>
+									<div class="text-gray-400">입찰 수</div>
+									<div class="text-[#222222]" th:text="${auction.bidCount + '건'}"></div>
+								</div>
+								<div>
+									<div class="text-gray-400">마감일</div>
+									<div class="text-[#222222]"
+										th:text="${#temporals.format(auction.auctionEndAt, 'yyyy-MM-dd')}"></div>
+								</div>
+							</div>
+
+							<!-- 경매 정보 -->
+							<div
+								class="flex justify-between items-center text-[11px] text-gray-500">
+								<span> 등록일 <span
+									th:text="${#temporals.format(auction.auctionRegdate, 'yyyy-MM-dd')}"></span>
+								</span>
+							</div>
+
+							<div class="pt-2 border-t border-gray-200"
+								th:if="${auction.auctionStatusIdx == 3 and auction.winnerBidIdx != null}">
+								<div class="text-[11px] text-gray-500 mb-1">낙찰 요약</div>
+								<div class="space-y-1 text-[11px] text-gray-700">
+									<div th:text="${'상품: ' + (auction.winnerItemName != null ? auction.winnerItemName : '-')}">상품: -</div>
+									<div th:text="${'낙찰가: ' + (auction.winnerBidPrice != null ? #numbers.formatInteger(auction.winnerBidPrice, 0, 'COMMA') + '원' : '-')}">낙찰가: -</div>
+									<div th:text="${'낙찰자: ' + (auction.winnerBidderMemIdMasked != null ? auction.winnerBidderMemIdMasked : '-')}">낙찰자: -</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+	</main>
+</body>
+</html>

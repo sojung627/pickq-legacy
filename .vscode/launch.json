@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-SpringbootstudyBbs02RestapiApplication<final-project-springboots>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.springbootstudy.bbs.SpringbootstudyBbs02RestapiApplication",
+      "projectName": "final-project-springboots",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

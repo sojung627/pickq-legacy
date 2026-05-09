@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/main_layout}">
+<head>
+<meta charset="UTF-8">
+<title th:text="${currentType.boardTypeName} + ' 글쓰기 - PickQ'">글쓰기
+	- PickQ</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css">
+</head>
+<body>
+	<th:block layout:fragment="content">
+
+		<div class="min-h-[calc(100vh-200px)] bg-white py-8">
+			<div class="mx-auto max-w-4xl px-4 sm:px-6">
+
+				<!-- 상단 헤더 + 뒤로가기 -->
+				<div class="mb-6 flex items-center justify-between">
+					<div>
+						<h1 class="text-xl sm:text-2xl font-bold text-[#222222] mb-1">
+							✏️ 게시글 작성</h1>
+						<p class="text-xs sm:text-sm text-[#767676]">커뮤니티에 공유할 내용을
+							작성해주세요.</p>
+					</div>
+					<a
+						th:href="${from == 'all'} ? '/boards' : '/boards/' + ${typeCode}"
+						class="inline-flex items-center text-xs sm:text-sm px-3 py-1.5 rounded-full
+                  text-[#767676] hover:text-[#222222] hover:bg-gray-50 border border-transparent transition-colors">
+						<i class="bi bi-arrow-left-short me-1" style="font-size: 1rem;"></i>
+						목록으로
+					</a>
+				</div>
+
+				<!-- 카드 -->
+				<div
+					class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
+					<div class="p-6 sm:p-8">
+
+						<form id="writeForm" th:action="@{/boards/{tc}(tc=${typeCode})}"
+							method="post">
+
+							<input type="hidden" id="fromInput" name="from"
+								th:value="${from}">
+							<input type="hidden" id="isLoggedIn" th:value="${session.loginUser != null}">
+
+							<!-- 카테고리 -->
+							<div class="mb-4">
+								<label for="categorySelect"
+									class="block text-xs sm:text-sm font-medium text-[#222222] mb-1.5">
+									카테고리 </label> <select id="categorySelect"
+									class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-[#222222] bg-white
+                             focus:outline-none focus:ring-2 focus:ring-[#7CBD00]"
+									onchange="changeCategory(this.value)">
+									<option th:each="bt : ${boardTypes}"
+										th:value="${bt.boardTypeCode}" th:text="${bt.boardTypeName}"
+										th:selected="${bt.boardTypeCode == typeCode}"></option>
+								</select>
+							</div>
+
+							<!-- 제목 -->
+							<div class="mb-4">
+								<label for="boardTitle"
+									class="block text-xs sm:text-sm font-medium text-[#222222] mb-1.5">
+									제목 </label> <input id="boardTitle" type="text" name="boardTitle"
+									class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-[#222222]
+                            placeholder:text-[#a7a7a7] focus:outline-none focus:ring-2 focus:ring-[#7CBD00]"
+									placeholder="제목을 입력하세요" required maxlength="200">
+							</div>
+
+							<!-- 내용 -->
+							<div class="mb-5">
+								<label for="boardContent"
+									class="block text-xs sm:text-sm font-medium text-[#222222] mb-1.5">
+									내용 </label>
+								<textarea id="boardContent" name="boardContent"
+									class="w-full border border-gray-200 rounded-lg text-sm"></textarea>
+							</div>
+
+							<!-- 버튼 -->
+							<div class="flex items-center gap-2">
+								<button type="submit"
+									class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold
+                             bg-[#222222] text-white hover:bg-[#444444]">
+									<i class="bi bi-pencil-square text-[13px]"></i> <span>등록</span>
+								</button>
+								<a
+									th:href="${from == 'all'} ? '/boards' : '/boards/' + ${typeCode}"
+									class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold
+                        border border-gray-300 text-[#222222] bg-white hover:bg-gray-50">
+									취소 </a>
+							</div>
+
+						</form>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<script
+			src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+		<script
+			src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+		<script th:src="@{/js/summernote.js}"></script>
+		<script th:src="@{/js/board.js}"></script>
+		<script>
+			function changeCategory(typeCode) {
+				document.getElementById('writeForm').action = '/boards/'
+						+ typeCode;
+			}
+			initSummernote('boardContent', saveDraftContent);
+			initBoardForm('writeForm');
+		</script>
+
+	</th:block>
+</body>
+</html>

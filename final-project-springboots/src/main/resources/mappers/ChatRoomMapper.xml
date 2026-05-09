@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbootstudy.bbs.mapper.ChatRoomMapper">
+
+    <!-- 공통 매핑 -->
+    <resultMap id="ChatRoomResultMap" type="ChatRoomVO">
+        <id     property="chatroomIdx" column="chatroom_idx"/>
+        <result property="auctionIdx"  column="auction_idx"/>
+        <result property="buyerIdx"    column="buyer_idx"/>
+        <result property="bidderIdx"   column="bidder_idx"/>
+        <result property="createdAt"   column="created_at"/>
+    </resultMap>
+
+    <!-- PK로 방 한 개 조회 -->
+    <select id="findByChatIdx" parameterType="long"
+            resultMap="ChatRoomResultMap">
+        SELECT
+            chatroom_idx,
+            auction_idx,
+            buyer_idx,
+            bidder_idx,
+            created_at
+        FROM chatroom
+        WHERE chatroom_idx = #{chatroomIdx}
+    </select>
+
+    <!-- 경매 + buyer + bidder 조합으로 방 조회 -->
+    <select id="findByAuctionAndMembers"
+            parameterType="map"
+            resultMap="ChatRoomResultMap">
+        SELECT
+            chatroom_idx,
+            auction_idx,
+            buyer_idx,
+            bidder_idx,
+            created_at
+        FROM chatroom
+        WHERE auction_idx = #{auctionIdx}
+          AND buyer_idx   = #{buyerIdx}
+          AND bidder_idx  = #{bidderIdx}
+    </select>
+
+    <!-- 방 생성 -->
+    <insert id="insertChatRoom" parameterType="ChatRoomVO"
+            useGeneratedKeys="true" keyProperty="chatroomIdx">
+        INSERT INTO chatroom (
+            auction_idx,
+            buyer_idx,
+            bidder_idx,
+            created_at
+        ) VALUES (
+            #{auctionIdx},
+            #{buyerIdx},
+            #{bidderIdx},
+            NOW()
+        )
+    </insert>
+
+    <!-- 내가 참여한 모든 채팅방 목록 조회 (buyer 또는 bidder) -->
+    <select id="findByMember" parameterType="long"
+            resultMap="ChatRoomResultMap">
+        SELECT
+            chatroom_idx,
+            auction_idx,
+            buyer_idx,
+            bidder_idx,
+            created_at
+        FROM chatroom
+        WHERE buyer_idx  = #{memIdx}
+           OR bidder_idx = #{memIdx}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findRoomSummariesByMember" parameterType="long" resultType="map">
+        SELECT
+            cr.chatroom_idx AS chatroomIdx,
+            cr.auction_idx AS auctionIdx,
+            CASE
+                WHEN cr.buyer_idx = #{memIdx} THEN cr.bidder_idx
+                ELSE cr.buyer_idx
+            END AS opponentIdx,
+            COALESCE(mp.mem_nickname, m.mem_name, m.mem_id) AS opponentName,
+            lm.message_content AS lastMessage,
+            lm.sent_at AS lastMessageAt,
+            COALESCE(uc.unread_count, 0) AS unreadCount
+        FROM chatroom cr
+        INNER JOIN member m
+            ON m.mem_idx = CASE
+                WHEN cr.buyer_idx = #{memIdx} THEN cr.bidder_idx
+                ELSE cr.buyer_idx
+            END
+        LEFT JOIN member_profile mp
+            ON mp.mem_idx = m.mem_idx
+        LEFT JOIN chatmessage lm
+            ON lm.message_idx = (
+                SELECT cm2.message_idx
+                FROM chatmessage cm2
+                WHERE cm2.chatroom_idx = cr.chatroom_idx
+                ORDER BY cm2.sent_at DESC, cm2.message_idx DESC
+                LIMIT 1
+            )
+        LEFT JOIN (
+            SELECT cm.chatroom_idx, COUNT(*) AS unread_count
+            FROM chatmessage cm
+            INNER JOIN chatroom c ON c.chatroom_idx = cm.chatroom_idx
+            WHERE cm.is_read = 'N'
+              AND cm.sender_idx != #{memIdx}
+              AND (c.buyer_idx = #{memIdx} OR c.bidder_idx = #{memIdx})
+            GROUP BY cm.chatroom_idx
+        ) uc ON uc.chatroom_idx = cr.chatroom_idx
+        WHERE cr.buyer_idx = #{memIdx}
+           OR cr.bidder_idx = #{memIdx}
+        ORDER BY COALESCE(lm.sent_at, cr.created_at) DESC
+    </select>
+
+</mapper>

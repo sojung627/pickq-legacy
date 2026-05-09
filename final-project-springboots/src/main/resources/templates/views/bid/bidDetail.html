@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>입찰 상세</title>
+</head>
+<body>
+
+<div class="container">
+    <h2>📋 입찰 상세 정보</h2>
+
+    <div class="info-section">
+        <p><strong>경매 제목:</strong> [[${auction.auctionTitle}]]</p>
+        <p><strong>판매자 이름:</strong> [[${bid.realMemName}]]</p>
+        <p><strong>제안 가격:</strong> [[${#numbers.formatInteger(bid.bidPrice, 0, 'COMMA')}]]원</p>
+        <p><strong>수량:</strong> [[${bid.bidQuantity}]]개</p>
+        <p><strong>제안 메시지:</strong></p>
+        <p th:text="${bid.bidMessage}" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+			메시지 내용</p>
+		<p>
+        <p><strong>제안일:</strong> [[${#temporals.format(bid.bidRegdate, 'yyyy-MM-dd HH:mm')}]]</p>
+        <p><strong>상태:</strong> [[${bid.bidStatusName}]]</p>
+
+        <!-- 이미지가 있으면 표시 -->
+        <div th:if="${bid.itemThumbnailImg != null and bid.itemThumbnailImg != ''}">
+            <p><strong>제안 이미지:</strong></p>
+            <img th:src="@{${bid.itemThumbnailImg}}" style="max-width: 300px; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+    </div>
+
+    <!-- 낙찰 버튼 (진행중인 입찰만) -->
+    <div th:if="${bid.bidStatusIdx == 1 and auction.auctionStatusIdx == 1}" style="margin-top: 20px;">
+        <form th:action="@{/auctions/{aId}/bids/{bId}/win(aId=${auction.auctionIdx},bId=${bid.bidIdx})}"
+              method="post"
+              onsubmit="return confirm('이 입찰을 낙찰하시겠습니까?')">
+            <input type="hidden" name="auctionIdx" th:value="${auction.auctionIdx}">
+            <button type="submit" style="background: blue; color: white; padding: 10px 20px; border-radius: 4px; border: none; cursor: pointer;">
+				이 입찰 낙찰하기
+			</button>
+        </form>
+    </div>
+
+    <div class="btn-group" style="margin-top: 20px;">
+        <button type="button" onclick="history.back()">
+            경매로 돌아가기
+        </button>
+    </div>
+</div>
+
+</body>
+</html>

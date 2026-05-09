@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--	
+	마이바티스 참고 사이트
+	  - http://blog.mybatis.org/
+	  - http://www.mybatis.org/mybatis-3/ko/index.html
+	  
+	@Mapper 애노테이션이 적용된 인터페이스와 맵퍼 XML파일은
+	namespace 속성으로 연결되기 때문에 맵퍼 XML의 namespace를
+	지정할 때 @Mapper 애노테이션이 적용된 맵퍼 인터페이스의
+	완전한 클래스 이름(패키지를 포함한 이름)을 지정하면 된다.   
+-->
+<mapper namespace="com.springbootstudy.bbs.mapper.MemberAddrMapper">
+	<!-- 대표주소 하나만 저장되게! -->
+	<update id="resetPrimaryAddr" parameterType="long"> 
+		UPDATE member_addr 
+			SET is_primary = 'N' WHERE
+			mem_idx = #{memIdx} 
+	</update>
+
+	<!-- 주소 저장 -->
+	<insert id="insertAddr"> 
+		INSERT INTO member_addr ( 
+			mem_idx, 
+			mem_zipcode, 
+			mem_addr,
+			mem_addr_detail, 
+			is_primary 
+		) VALUES ( 
+			#{memIdx}, 
+			#{memZipcode}, 
+			#{memAddr}, 
+			#{memAddrDetail},
+			#{isPrimary} 
+		) 
+		</insert>
+
+    <!-- 주소 리스트 조회 -->
+    <select id="selectAddrList" resultType="com.springbootstudy.bbs.domain.MemberAddrVO">
+	    SELECT 
+	        a.*,
+	        m.mem_tel
+	    FROM member_addr a
+	    JOIN member m ON a.mem_idx = m.mem_idx
+	    WHERE a.mem_idx = #{memIdx}
+	    
+	    ORDER BY 
+	        a.is_primary DESC,   
+	        a.addr_idx DESC      
+	</select>
+
+	<!-- 주소 삭제 -->
+	<delete id="deleteAddr"> 
+		DELETE FROM member_addr 
+		WHERE addr_idx = #{addrIdx} 
+	</delete>
+
+	<!-- 주소 수정 -->
+	<select id="selectOne" resultType="com.springbootstudy.bbs.domain.MemberAddrVO"> 
+		SELECT * FROM
+		member_addr WHERE addr_idx = #{addrIdx} 
+	</select>
+
+	<update id="updateAddr"> 
+		UPDATE member_addr 
+			SET mem_zipcode = #{memZipcode}, 
+				mem_addr = #{memAddr}, 
+				mem_addr_detail = #{memAddrDetail}, 
+				is_primary = #{isPrimary} 
+		WHERE addr_idx = #{addrIdx} 
+	</update>
+
+	<!-- 대표 배송지 단건 조회 -->
+	<select id="selectPrimaryAddr" resultType="com.springbootstudy.bbs.domain.MemberAddrVO"> 
+		SELECT a.*, m.mem_tel FROM member_addr 
+			a JOIN member m ON a.mem_idx = m.mem_idx 
+		WHERE a.mem_idx = #{memIdx} 
+			AND a.is_primary = 'Y' LIMIT 1 
+	</select>
+	
+	<!-- 대표 배송지 버튼 누르면 전부 N -->
+	<update id="resetPrimary">
+	    UPDATE member_addr
+	    SET is_primary = 'N'
+	    WHERE mem_idx = #{memIdx}
+	</update>
+	
+	<!-- 대표배송지 누르면 하나만 Y -->
+	<update id="updatePrimary">
+	    UPDATE member_addr
+	    SET is_primary = 'Y'
+	    WHERE addr_idx = #{addrIdx}
+	</update>
+
+</mapper>	

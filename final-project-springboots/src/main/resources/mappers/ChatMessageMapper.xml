@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbootstudy.bbs.mapper.ChatMessageMapper">
+
+    <!-- 공통 매핑 -->
+    <resultMap id="ChatMessageResultMap" type="ChatMessageVO">
+        <id     property="messageIdx"     column="message_idx"/>
+        <result property="chatroomIdx"    column="chatroom_idx"/>
+        <result property="senderIdx"      column="sender_idx"/>
+        <result property="messageContent" column="message_content"/>
+        <result property="sentAt"         column="sent_at"/>
+        <result property="isRead"         column="is_read"/>
+        <result property="readAt"         column="read_at"/>
+    </resultMap>
+
+    <!-- 특정 채팅방의 메시지 목록 (오래된 순서) -->
+    <select id="findByChatroom" parameterType="long"
+            resultMap="ChatMessageResultMap">
+        SELECT
+            message_idx,
+            chatroom_idx,
+            sender_idx,
+            message_content,
+            sent_at,
+            is_read,
+            read_at
+        FROM chatmessage
+        WHERE chatroom_idx = #{chatroomIdx}
+        ORDER BY sent_at ASC, message_idx ASC
+    </select>
+
+    <!-- 메시지 저장 -->
+    <insert id="insertMessage" parameterType="ChatMessageVO"
+            useGeneratedKeys="true" keyProperty="messageIdx">
+        INSERT INTO chatmessage (
+            chatroom_idx,
+            sender_idx,
+            message_content,
+            sent_at,
+            is_read,
+            read_at
+        ) VALUES (
+            #{chatroomIdx},
+            #{senderIdx},
+            #{messageContent},
+            NOW(),
+            'N',
+            NULL
+        )
+    </insert>
+
+    <update id="markRoomMessagesRead" parameterType="map">
+        UPDATE chatmessage
+        SET is_read = 'Y',
+            read_at = NOW()
+        WHERE chatroom_idx = #{chatroomIdx}
+          AND sender_idx != #{viewerIdx}
+          AND is_read = 'N'
+    </update>
+
+    <select id="countUnreadForMember" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM chatmessage cm
+        INNER JOIN chatroom cr ON cr.chatroom_idx = cm.chatroom_idx
+        WHERE (cr.buyer_idx = #{memIdx} OR cr.bidder_idx = #{memIdx})
+          AND cm.sender_idx != #{memIdx}
+          AND cm.is_read = 'N'
+    </select>
+
+    <!-- 방 삭제 시 메시지 전체 삭제하고 싶을 때 사용 -->
+    <delete id="deleteByChatroom" parameterType="long">
+        DELETE FROM chatmessage
+        WHERE chatroom_idx = #{chatroomIdx}
+    </delete>
+
+</mapper>

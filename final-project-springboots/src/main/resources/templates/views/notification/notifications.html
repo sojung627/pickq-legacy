@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/main_layout}">
+<head>
+<meta charset="UTF-8">
+<title>알림 - PickQ</title>
+</head>
+<body>
+	<div layout:fragment="content">
+
+		<div class="min-h-[70vh] bg-[#ffffff] py-6" id="notification-page-root"
+			th:attr="data-filter=${filter}, data-unread-count=${unreadCount != null ? unreadCount : 0}">
+			<div class="mx-auto max-w-4xl px-4">
+
+				<!-- 상단 헤더 영역 -->
+				<div class="mb-6">
+					<div class="flex items-center justify-between mb-4">
+						<div class="flex items-center gap-3">
+							<div
+								class="flex items-center justify-center w-10 h-10 rounded-full bg-[#7CBD00]/10 text-[#7CBD00]">
+								🔔</div>
+							<h1 class="text-2xl sm:text-3xl font-bold text-gray-900">알림</h1>
+						</div>
+
+						<button th:if="${unreadCount != null and unreadCount > 0}"
+							type="button" data-action="mark-all-read"
+							id="notification-mark-all-btn"
+							class="inline-flex items-center text-sm px-3 py-1.5 rounded-full
+                                   text-[#7CBD00] hover:text-[#6BAD00] hover:bg-[#7CBD00]/10 border border-transparent
+                                   transition-colors">
+							<span class="mr-1.5 text-xs">✔</span> 모두 읽음
+						</button>
+					</div>
+
+					<!-- 탭 -->
+					<div
+						class="flex items-center gap-2 border-b border-gray-200 text-sm">
+
+						<a th:href="@{/notifications}"
+							th:class="${filter} == 'all' ?
+                 'px-4 py-2 border-b-2 border-[#7CBD00] text-[#7CBD00] font-medium' :
+                 'px-4 py-2 border-b-2 border-transparent text-gray-600 hover:text-gray-900'">
+							전체 <span th:text="'(' + ${notifications.size()} + ')'">(0)</span>
+						</a> <a th:href="@{/notifications/unread}"
+							th:class="${filter} == 'unread' ?
+                 'px-4 py-2 border-b-2 border-[#7CBD00] text-[#7CBD00] font-medium' :
+                 'px-4 py-2 border-b-2 border-transparent text-gray-600 hover:text-gray-900'">
+							읽지 않음 <span th:text="'(' + ${unreadCount} + ')'"
+							th:if="${unreadCount != null}">(0)</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- 알림 리스트 -->
+				<div class="mb-2" id="notification-list-section">
+
+					<!-- 알림 없음 -->
+					<div th:if="${#lists.isEmpty(notifications)}" id="notification-empty-state"
+						class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+						<div
+							class="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-300 text-2xl">
+							🔔</div>
+						<p class="text-sm text-gray-500"
+							th:text="${filter} == 'unread' ? '읽지 않은 알림이 없습니다' : '알림이 없습니다'">
+							알림이 없습니다</p>
+					</div>
+
+					<!-- 알림 있음 -->
+					<div th:if="${!#lists.isEmpty(notifications)}" class="space-y-4" id="notification-list-wrap">
+
+						<div th:each="n : ${notifications}"
+							class="notification-item"
+							data-notification-card="true"
+							th:attr="data-notification-idx=${n.notificationIdx}, data-is-read=${n.isRead}, data-target-url=${n.targetUrl}"
+							th:if="${filter} == 'unread' ? ${n.isRead} == 'N' : true"
+							th:classappend="${n.isRead} == 'Y' ?
+                   'bg-white rounded-lg border border-gray-200 transition-all hover:shadow-md' :
+                   'bg-[#f5f5f5] rounded-lg border border-gray-300 transition-all hover:shadow-md'">
+
+							<div class="p-4 sm:p-5">
+								<div class="flex items-start gap-4">
+
+									<div data-notification-icon-wrap
+										th:class="${n.isRead} == 'Y' ?
+                               'flex-shrink-0 w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center' :
+                               'flex-shrink-0 w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center'">
+										<span
+											data-notification-icon
+											th:class="${n.isRead} == 'Y' ?
+                                    'text-gray-400' : 'text-gray-700 text-lg'">⏰</span>
+									</div>
+
+									<div class="flex-1 min-w-0">
+
+										<div class="flex items-start justify-between gap-2 mb-2">
+											<h3 th:text="${n.notificationTitle}"
+												data-notification-title
+												th:class="${n.isRead == 'Y'} ?
+														  'text-sm sm:text-base font-semibold text-gray-700' :
+														  'text-sm sm:text-base font-semibold text-gray-900'">
+												알림 제목</h3>
+
+											<div
+												class="flex items-center gap-2 flex-shrink-0 text-gray-400">
+												<button type="button" th:if="${n.isRead == 'N'}"
+													data-action="mark-read"
+													th:attr="data-notification-idx=${n.notificationIdx}"
+													class="inline-flex text-xs items-center hover:text-[#7CBD00]">
+													✔</button>
+												<button type="button"
+													data-action="delete-placeholder"
+													class="hidden text-xs sm:inline-flex items-center hover:text-red-500">
+													🗑</button>
+											</div>
+										</div>
+
+										<p class="text-[11px] font-semibold tracking-wide text-gray-400 mb-1">상세</p>
+										<p th:text="${n.notificationMessage}"
+											data-notification-message
+											th:class="${n.isRead == 'Y'} ?
+													 'text-sm mb-2 text-gray-500 leading-6' :
+													 'text-sm mb-2 text-gray-700 leading-6'">
+											알림 내용</p>
+
+										<div
+											class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+											<div data-notification-target>
+												<a th:if="${n.targetUrl != null}"
+													th:href="@{${n.targetUrl}}"
+													class="inline-block text-sm text-[#7CBD00] hover:text-[#6BAD00] font-medium hover:underline">
+													관련 페이지로 이동 → </a> <span th:if="${n.targetUrl == null}"
+													class="text-xs text-gray-400"> 이동 가능한 페이지가 없습니다 </span>
+											</div>
+
+											<p class="text-xs text-gray-400"
+												data-notification-created-at
+												th:text="${#temporals.format(n.createdAt, 'yyyy-MM-dd HH:mm')}">
+												2026-03-30 14:00</p>
+										</div>
+
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+</body>
+</html>

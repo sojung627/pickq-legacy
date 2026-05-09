@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/main_layout}">
+<head>
+<meta charset="UTF-8">
+<title
+	th:text="${currentType != null} ? ${currentType.boardTypeName} + ' - PickQ' : '커뮤니티 - PickQ'">
+	커뮤니티 - PickQ</title>
+</head>
+<body>
+	<th:block layout:fragment="content">
+
+		<div class="min-h-screen bg-white">
+			<div class="mx-auto max-w-[1200px] px-4 sm:px-6 py-8">
+
+				<!-- 상단 헤더 -->
+				<header class="mb-4 py-3 px-3 sm:py-10">
+					<div
+						class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div>
+							<h1 class="text-2xl sm:text-3xl font-bold text-[#222222] mb-1">커뮤니티</h1>
+							<p class="text-sm text-[#767676]">커뮤니티에서 다양한 주제로 소통해 보세요.</p>
+						</div>
+					</div>
+				</header>
+				<div class="flex flex-col gap-6 lg:flex-row lg:gap-8">
+
+					<!-- Left Sidebar -->
+					<aside class="w-full lg:w-60 lg:flex-shrink-0">
+						<div
+							class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] sticky top-24 overflow-hidden">
+							<!-- Mobile accordion header -->
+							<button id="sidebar-accordion-toggle"
+								class="lg:hidden w-full flex items-center justify-between px-4 py-3 border-b border-gray-100 text-sm font-semibold text-[#222222]"
+								aria-expanded="false" aria-controls="sidebar-accordion-body"
+								onclick="toggleSidebarAccordion()">
+								<span class="flex items-center gap-2"> <span>종목별
+										게시판</span> <span id="sidebar-current-board"
+									class="text-xs font-normal text-[#767676]"
+									th:text="${currentType != null} ? '· ' + ${currentType.boardTypeName} : '· 전체 게시판'">
+								</span>
+								</span> <i
+									class="bi bi-chevron-down text-[#767676] transition-transform duration-300"
+									id="sidebar-accordion-icon"></i>
+							</button>
+							<!-- Desktop header (hidden on mobile) -->
+							<div class="hidden lg:block px-4 py-3 border-b border-gray-100">
+								<h3 class="text-sm font-semibold text-[#222222]">종목별 게시판</h3>
+							</div>
+
+							<div id="sidebar-accordion-body" role="region"
+								aria-labelledby="sidebar-accordion-toggle"
+								class="overflow-hidden transition-[max-height] duration-300 ease-in-out max-h-0 lg:max-h-none lg:overflow-visible">
+								<div class="px-2 py-2">
+									<!-- 전체 게시판 -->
+									<a th:href="@{/boards}"
+										class="w-full inline-flex items-center rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${typeCode == null} ?
+                      ' bg-gray-100 text-[#222222]' :
+                      ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										전체 게시판 </a>
+
+									<!-- 개별 게시판 -->
+									<div>
+										<a th:each="bt : ${boardTypes}"
+											th:href="@{/boards/{tc}(tc=${bt.boardTypeCode})}"
+											class="w-full inline-flex items-center rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+											th:classappend="${typeCode != null and typeCode == bt.boardTypeCode} ?
+                        ' bg-gray-100 text-[#222222]' :
+                        ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+											<span th:text="${bt.boardTypeName}">축구</span>
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</aside>
+
+					<!-- Right: List -->
+					<div class="flex-1 min-w-0">
+						<div
+							class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+
+							<!-- Header -->
+							<div class="px-6 py-5 border-b border-gray-100">
+								<div
+									class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+									<h1 class="text-xl sm:text-2xl font-bold text-[#222222]"
+										th:text="${currentType != null} ? ${currentType.boardTypeName} : '전체 게시판'">
+										전체 게시판</h1>
+
+									<!-- 글쓰기: 로그인 여부에 따라 -->
+									<div class="flex items-center justify-end">
+										<!-- 로그인 O -->
+										<th:block th:if="${session.loginUser != null}">
+											<!-- 특정 카테고리 안 -->
+											<a th:if="${typeCode != null}"
+												th:href="@{/boards/{tc}/new(tc=${typeCode})}"
+												class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold bg-[#222222] text-white hover:bg-[#444444] transition-colors">
+												<i class="bi bi-plus-lg text-[0.8rem]"></i> <span>글쓰기</span>
+											</a>
+											<!-- 전체 게시판: 모달 -->
+											<button th:if="${typeCode == null}" type="button"
+												class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold bg-[#222222] text-white hover:bg-[#444444] transition-colors"
+												onclick="document.getElementById('categoryModal').style.display='flex'">
+												<i class="bi bi-plus-lg text-[0.8rem]"></i> <span>글쓰기</span>
+											</button>
+										</th:block>
+
+										<!-- 로그인 X -->
+										<th:block th:if="${session.loginUser == null}">
+											<a th:if="${typeCode != null}"
+												th:href="@{/members/login(redirect='/boards/' + ${typeCode} + '/new')}"
+												class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold bg-[#222222] text-white hover:bg-[#444444] transition-colors">
+												<i class="bi bi-plus-lg text-[0.8rem]"></i> <span>글쓰기</span>
+											</a>
+											<a th:if="${typeCode == null}"
+												th:href="@{/members/login(redirect='/boards?page=' + ${currentPage})}"
+												class="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold bg-[#222222] text-white hover:bg-[#444444] transition-colors">
+												<i class="bi bi-plus-lg text-[0.8rem]"></i> <span>글쓰기</span>
+											</a>
+										</th:block>
+									</div>
+								</div>
+
+								<!-- 글쓰기용 카테고리 모달 -->
+								<div id="categoryModal"
+									class="hidden fixed inset-0 z-[9999] items-center justify-center bg-black/60"
+									onclick="if(event.target===this) this.style.display='none'">
+									<div
+										class="w-[90%] max-w-sm rounded-2xl border border-[#333] bg-[#1e1e1e] px-5 py-4">
+										<div class="mb-3 text-sm font-bold text-[#c6f135]">게시판
+											선택</div>
+										<div class="flex flex-col gap-1">
+											<a th:each="bt : ${boardTypes}"
+												th:href="@{/boards/{tc}/new(tc=${bt.boardTypeCode}, from='all')}"
+												th:text="${bt.boardTypeName}"
+												class="block rounded-lg bg-[#2a2a2a] px-3 py-2 text-xs text-[#e0e0e0] no-underline"
+												onmouseover="this.style.background='#c6f135'; this.style.color='#121212';"
+												onmouseout="this.style.background='#2a2a2a'; this.style.color='#e0e0e0';">
+											</a>
+										</div>
+										<button type="button"
+											class="mt-3 w-full rounded-lg border border-[#444] px-3 py-1.5 text-xs text-[#aaaaaa]"
+											onclick="document.getElementById('categoryModal').style.display='none'">
+											취소</button>
+									</div>
+								</div>
+
+								<!-- Search -->
+								<form
+									th:action="${typeCode != null} ? '/boards/' + ${typeCode} : '/boards'"
+									method="get"
+									class="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+									<!-- Select -->
+									<select name="searchType"
+										class="w-full sm:w-40 rounded-md border border-gray-300 bg-white px-2 py-2 text-xs sm:text-sm">
+										<option value="all"
+											th:selected="${searchType == null or searchType == 'all'}">
+											제목+내용</option>
+										<option value="title" th:selected="${searchType == 'title'}">제목</option>
+										<option value="content"
+											th:selected="${searchType == 'content'}">내용</option>
+										<option value="writer" th:selected="${searchType == 'writer'}">작성자</option>
+									</select>
+
+									<!-- Input -->
+									<div class="relative flex-1">
+										<i
+											class="bi bi-search text-gray-400 text-xs sm:text-sm absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+										<input type="text" name="keyword" placeholder="검색어를 입력하세요"
+											th:value="${keyword}"
+											class="w-full rounded-md border border-gray-300 bg-white pl-7 pr-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-gray-800" />
+									</div>
+
+									<!-- Button -->
+									<button type="submit"
+										class="inline-flex items-center justify-center gap-1.5 rounded-md bg-gray-900 px-4 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-gray-700">
+										<i class="bi bi-search text-[0.8rem]"></i> <span>검색</span>
+									</button>
+								</form>
+							</div>
+
+							<!-- List Header -->
+							<div
+								class="grid grid-cols-12 gap-1 px-6 py-3 bg-gray-50 text-[11px] sm:text-xs font-semibold text-[#222222]">
+								<div class="col-span-7 text-center">제목</div>
+								<div class="col-span-2 text-center">작성자</div>
+								<div class="col-span-1 text-center">조회</div>
+								<div class="col-span-1 text-center">추천</div>
+								<div class="col-span-1 text-center">작성일</div>
+							</div>
+
+							<!-- Empty -->
+							<div th:if="${#lists.isEmpty(boards)}"
+								class="px-6 py-8 text-center text-sm text-gray-500">게시글이
+								없습니다.</div>
+
+							<!-- Rows -->
+							<div class="divide-y divide-gray-100"
+								th:if="${!#lists.isEmpty(boards)}">
+								<div th:each="b, stat : ${boards}"
+									class="grid grid-cols-12 gap-1 px-6 py-3 text-[11px] sm:text-sm hover:bg-gray-50 transition-colors">
+
+									<!-- 제목 -->
+									<div class="col-span-7">
+										<div class="flex items-center gap-2 overflow-hidden">
+											<a
+												th:href="${typeCode == null} 
+                                   ? @{/boards/{tc}/{id}(tc=${b.boardTypeCode}, id=${b.boardIdx}, from='all', page=${currentPage})} 
+                                   : @{/boards/{tc}/{id}(tc=${b.boardTypeCode}, id=${b.boardIdx}, page=${currentPage})}"
+												class="truncate text-[#222222] font-medium hover:text-[#7CBD00]">
+												<span th:text="${b.boardTitle}">게시글 제목</span>
+											</a>
+
+											<!-- 이미지 여부 -->
+											<i
+												class="bi bi-image-fill text-[10px] sm:text-xs text-[#999999] flex-shrink-0"
+												th:if="${b.hasImage}"></i>
+
+											<!-- 댓글 수 -->
+											<span th:if="${b.replyCount > 0}"
+												class="flex items-center gap-1 text-xs text-[#999999] flex-shrink-0">
+												<i class="bi bi-chat-dots text-[11px]"></i> <span
+												th:text="${b.replyCount}">3</span>
+											</span>
+										</div>
+									</div>
+
+									<!-- 작성자 -->
+									<div class="col-span-2 flex items-center justify-center">
+										<span class="truncate text-[10px] sm:text-xs text-[#767676]"
+											th:text="${b.memNickname != null} ? ${b.memNickname} : ${b.memId}">
+											닉네임 </span>
+									</div>
+
+									<!-- 조회 -->
+									<div class="col-span-1 text-center text-[#767676]">
+										<span th:text="${b.boardViewCount}">123</span>
+									</div>
+
+									<!-- 추천 (현재 필드 없음: 비워둠) -->
+									<div class="col-span-1 text-center text-[#767676]">
+										<!-- <span th:text="${b.boardLikeCount}"></span> -->
+									</div>
+
+									<!-- 작성일 -->
+									<div
+										class="col-span-1 text-center text-[10px] sm:text-xs text-[#767676]"
+										th:text="${#temporals.format(b.boardRegdate, 'MM-dd')}">
+										2026-03-24</div>
+								</div>
+							</div>
+
+							<!-- Pagination -->
+							<div
+								class="border-t border-gray-100 px-4 sm:px-6 py-4 flex items-center justify-center gap-1.5 sm:gap-2">
+								<!-- 이전 -->
+								<a th:if="${blockStart > 1}"
+									th:href="@{${typeCode != null ? '/boards/' + typeCode : '/boards'}(page=${blockStart - 1}, keyword=${keyword}, searchType=${searchType})}"
+									class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs sm:text-sm text-[#767676] hover:bg-gray-50">
+									이전 </a>
+
+								<!-- 페이지 번호 -->
+								<a th:each="p : ${#numbers.sequence(blockStart, blockEnd)}"
+									th:href="@{${typeCode != null ? '/boards/' + typeCode : '/boards'}(page=${p}, keyword=${keyword}, searchType=${searchType})}"
+									th:text="${p}"
+									class="rounded-md border px-3 py-1.5 text-xs sm:text-sm hover:bg-gray-50"
+									th:classappend="${p == currentPage}
+                                  ? ' bg-[#222222] border-[#222222] text-white'
+                                  : ' border-gray-300 text-[#767676]'">
+								</a>
+
+								<!-- 다음 -->
+								<a th:if="${blockEnd < totalPages}"
+									th:href="@{${typeCode != null ? '/boards/' + typeCode : '/boards'}(page=${blockEnd + 1}, keyword=${keyword}, searchType=${searchType})}"
+									class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs sm:text-sm text-[#767676] hover:bg-gray-50">
+									다음 </a>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<script th:src="@{/js/board.js}"></script>
+		<script>
+			// 게시글 등록 성공 후 draft 삭제
+			if (typeof clearDraftOnSuccess === 'function')
+				clearDraftOnSuccess();
+		</script>
+		<script>
+			function toggleSidebarAccordion() {
+				var toggle = document
+						.getElementById('sidebar-accordion-toggle');
+				var body = document.getElementById('sidebar-accordion-body');
+				var icon = document.getElementById('sidebar-accordion-icon');
+				var currentBoard = document
+						.getElementById('sidebar-current-board');
+
+				if (!toggle || !body)
+					return;
+
+				var isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+				if (isExpanded) {
+					// Collapse: set current scrollHeight first, then animate to 0
+					body.style.maxHeight = body.scrollHeight + 'px';
+					requestAnimationFrame(function() {
+						body.style.maxHeight = '0px';
+					});
+					toggle.setAttribute('aria-expanded', 'false');
+					if (icon)
+						icon.style.transform = 'rotate(0deg)';
+					if (currentBoard)
+						currentBoard.style.display = '';
+				} else {
+					// Expand: animate from 0 to scrollHeight, then set to none
+					body.style.maxHeight = body.scrollHeight + 'px';
+					body.addEventListener('transitionend', function handler() {
+						body.style.maxHeight = 'none';
+						body.removeEventListener('transitionend', handler);
+					});
+					toggle.setAttribute('aria-expanded', 'true');
+					if (icon)
+						icon.style.transform = 'rotate(180deg)';
+					if (currentBoard)
+						currentBoard.style.display = 'none';
+				}
+			}
+		</script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				var toggle = document
+						.getElementById('sidebar-accordion-toggle');
+				var body = document.getElementById('sidebar-accordion-body');
+				if (!toggle || !body) {
+					return;
+				}
+
+				if (window.innerWidth < 1024) {
+					body.style.maxHeight = '0px';
+					toggle.setAttribute('aria-expanded', 'false');
+				}
+			});
+		</script>
+
+	</th:block>
+</body>
+</html>

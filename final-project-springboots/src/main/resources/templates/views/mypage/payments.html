@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>내 결제 내역 - 마이페이지</title>
+</head>
+<body>
+	<div layout:fragment="content">
+
+		<div
+			class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+			<!-- 헤더 -->
+			<div class="px-6 py-5 border-b border-gray-100">
+				<h2 class="text-lg sm:text-xl font-semibold text-[#222222]">내
+					결제 내역</h2>
+				<p class="mt-1 text-xs sm:text-sm text-[#767676]">마감된 경매의
+					결제/배송 상태를 확인할 수 있습니다.</p>
+			</div>
+
+			<!-- 본문 -->
+			<div class="px-4 py-4 sm:px-6 sm:py-5">
+
+				<!-- 비어있을 때 -->
+				<div th:if="${#lists.isEmpty(payments)}"
+					class="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-lg">
+					결제 내역이 없습니다.</div>
+
+				<!-- 데이터 있을 때 -->
+				<div th:if="${!#lists.isEmpty(payments)}" class="space-y-3">
+
+					<!-- 데스크탑 헤더 -->
+					<div
+						class="hidden md:grid md:grid-cols-[2.5fr_1.5fr_1.5fr_1.5fr_1.5fr_1.5fr_2.2fr_2fr] text-[11px] text-gray-500 px-2 pb-2 border-b border-gray-100">
+						<span>상품명</span> <span class="text-right">결제 금액</span> <span>결제
+							수단</span> <span>결제 상태</span> <span>배송 상태</span> <span>택배사</span> <span>운송장번호</span>
+						<span class="text-center">결제일 / 구매확정</span>
+					</div>
+
+					<!-- 각 결제 행 -->
+					<div th:each="payment : ${payments}"
+						class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 sm:px-5 sm:py-4">
+
+						<!-- 데스크탑 뷰 -->
+						<div
+							class="hidden md:grid md:grid-cols-[2.5fr_1.5fr_1.5fr_1.5fr_1.5fr_1.5fr_2.2fr_2fr] items-center text-xs sm:text-sm gap-2">
+							<!-- 상품명 -->
+							<div class="truncate text-[#222222]"
+								th:text="${payment.itemName}"></div>
+
+							<!-- 결제 금액 -->
+							<div class="text-right font-semibold text-[#222222]"
+								th:text="${#numbers.formatInteger(payment.payAmount, 0, 'COMMA') + '원'}"></div>
+
+							<!-- 결제 수단 -->
+							<div class="text-gray-700" th:text="${payment.payMethod}"></div>
+
+							<!-- 결제 상태 -->
+							<div class="text-gray-700" th:text="${payment.payStatus}"></div>
+
+							<!-- 배송 상태 -->
+							<div class="text-gray-700"
+								th:text="${payment.deliveryStatus != null ? payment.deliveryStatus : '배송준비중'}"></div>
+
+							<!-- 택배사 -->
+							<div class="text-gray-600"
+								th:text="${payment.courierCompany != null ? payment.courierCompany : '-'}"></div>
+
+							<!-- 운송장번호 -->
+							<div class="text-gray-600"
+								th:text="${payment.trackingNumber != null ? payment.trackingNumber : '-'}"></div>
+
+							<!-- 결제일 + 구매확정 -->
+							<div class="flex flex-col items-center gap-1">
+								<span class="text-[11px] text-gray-500"
+									th:text="${#temporals.format(payment.payRegdate, 'yyyy-MM-dd HH:mm')}"></span>
+
+								<div class="text-[11px]">
+									<!-- 배송중(SHIPPING) + 결제 완료(DONE)일 때: 구매확정 버튼 -->
+									<button
+										th:if="${payment.deliveryStatus == 'SHIPPING' and payment.payStatus == 'DONE'}"
+										th:attr="data-bid-idx=${payment.bidIdx}"
+										onclick="confirmReceipt(this)"
+										class="px-3 py-1.5 rounded-md bg-[#7CBD00] text-white text-[11px] font-medium hover:bg-[#6BAD00]">
+											구매확정</button>
+
+									<!-- 이미 구매확정 완료 -->
+									<span th:if="${payment.payStatus == 'CONFIRMED'}"
+										class="text-gray-600 font-medium"> 구매확정 완료 </span>
+
+									<!-- 배송준비중 (deliveryStatus == null) -->
+									<span th:if="${payment.deliveryStatus == null}"
+										class="text-gray-400"> 배송준비중 </span>
+								</div>
+							</div>
+						</div>
+
+						<!-- 모바일 뷰 -->
+						<div class="md:hidden space-y-2">
+							<div class="flex justify-between items-start gap-2">
+								<div>
+									<div class="text-sm font-semibold text-[#222222]"
+										th:text="${payment.itemName}"></div>
+									<div class="mt-0.5 text-[11px] text-gray-500">
+										<span th:text="${payment.payMethod}"></span> · <span
+											th:text="${payment.payStatus}"></span>
+									</div>
+								</div>
+								<div class="text-right text-[11px] text-gray-400"
+									th:text="${#temporals.format(payment.payRegdate, 'yyyy-MM-dd HH:mm')}"></div>
+							</div>
+
+							<div class="grid grid-cols-2 gap-2 text-[11px] text-gray-600">
+								<div>
+									<div class="text-gray-400">결제 금액</div>
+									<div class="font-semibold text-[#222222]"
+										th:text="${#numbers.formatInteger(payment.payAmount, 0, 'COMMA') + '원'}"></div>
+								</div>
+								<div>
+									<div class="text-gray-400">배송 상태</div>
+									<div class="text-[#222222]"
+										th:text="${payment.deliveryStatus != null ? payment.deliveryStatus : '배송준비중'}"></div>
+								</div>
+								<div>
+									<div class="text-gray-400">택배사</div>
+									<div
+										th:text="${payment.courierCompany != null ? payment.courierCompany : '-'}"></div>
+								</div>
+								<div>
+									<div class="text-gray-400">운송장번호</div>
+									<div
+										th:text="${payment.trackingNumber != null ? payment.trackingNumber : '-'}"></div>
+								</div>
+							</div>
+
+							<div class="flex justify-end">
+										<!-- 모바일 구매확정/상태 표시 -->
+								<button
+									th:if="${payment.deliveryStatus == 'SHIPPING' and payment.payStatus == 'DONE'}"
+									th:attr="data-bid-idx=${payment.bidIdx}"
+									onclick="confirmReceipt(this)"
+									class="px-3 py-1.5 rounded-md bg-[#7CBD00] text-white text-[11px] font-medium hover:bg-[#6BAD00]">
+										구매확정</button>
+								<span th:if="${payment.payStatus == 'CONFIRMED'}"
+										class="text-[11px] text-gray-600 font-medium"> 구매확정 완료 </span> <span
+									th:if="${payment.deliveryStatus == null}"
+									class="text-[11px] text-gray-400"> 배송준비중 </span>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- 기존 JS 그대로 유지 -->
+		<script>
+    function confirmReceipt(btn) {
+	if (!confirm("구매확정 하시겠습니까? 확인 후 판매자에게 대금이 지급됩니다.")) return;
+
+      const bidIdx = btn.getAttribute("data-bid-idx");
+
+      fetch("/api/payment/confirm-receipt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bidIdx: bidIdx })
+      })
+        .then(res => res.json())
+        .then(data => {
+		  alert("구매확정이 완료되었습니다!");
+          location.reload();
+        })
+        .catch(err => {
+          alert("오류가 발생했습니다: " + err.message);
+        });
+    }
+  </script>
+
+	</div>
+</body>
+</html>

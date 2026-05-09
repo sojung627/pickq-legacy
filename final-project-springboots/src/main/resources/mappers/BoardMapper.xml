@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbootstudy.bbs.mapper.BoardMapper">
+
+	<!--  -->
+
+    <!-- 게시판 타입 -->
+    <select id="findAllBoardTypes" resultType="BoardTypeVO">
+        SELECT board_type_idx,
+               board_type_code,
+               board_type_name,
+               board_can_comment,
+               board_min_role
+        FROM board_type
+        ORDER BY board_type_idx
+    </select>
+
+    <!-- typeCode로 단건 조회 -->
+    <select id="findBoardTypeByCode" resultType="BoardTypeVO">
+        SELECT board_type_idx,
+               board_type_code,
+               board_type_name,
+               board_can_comment,
+               board_min_role
+        FROM board_type
+        WHERE board_type_code = #{typeCode}
+    </select>
+
+    <!-- 게시글 목록 -->
+    <select id="findBoards" resultType="BoardVO">
+        SELECT b.board_idx,
+               b.mem_idx,
+               b.board_title,
+               b.board_content,
+               b.board_ip,
+               b.board_thumbnail,
+               b.board_view_count,
+               b.board_type_idx,
+               b.board_regdate,
+               b.board_moddate,
+               b.board_is_deleted,
+               bt.board_type_name,
+               bt.board_type_code,
+               mp.mem_nickname,
+               m.mem_id,
+               (SELECT COUNT(*) FROM reply r
+                WHERE r.board_idx = b.board_idx AND r.reply_is_deleted = 'N') AS reply_count
+        FROM board b
+        LEFT JOIN board_type bt     ON b.board_type_idx = bt.board_type_idx
+        LEFT JOIN member_profile mp ON b.mem_idx = mp.mem_idx
+        LEFT JOIN member m          ON b.mem_idx = m.mem_idx
+        WHERE b.board_is_deleted = 'N'
+        <if test="typeCode != null and typeCode != ''">
+            AND bt.board_type_code = #{typeCode}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    AND b.board_title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    AND b.board_content LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'writer'">
+                    AND mp.mem_nickname LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (b.board_title   LIKE CONCAT('%', #{keyword}, '%')
+                      OR b.board_content LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
+        ORDER BY b.board_idx DESC
+    </select>
+    
+        <!-- ── 게시글 목록 (페이징) ────────────────────────────── -->
+    <select id="findBoardsPaged" resultType="BoardVO">
+        SELECT b.board_idx,
+               b.mem_idx,
+               b.board_title,
+               b.board_view_count,
+               b.board_type_idx,
+               b.board_regdate,
+               b.board_is_deleted,
+               bt.board_type_name,
+               bt.board_type_code,
+               mp.mem_nickname,
+               m.mem_id,
+               (SELECT COUNT(*) FROM reply r
+                WHERE r.board_idx = b.board_idx AND r.reply_is_deleted = 'N') AS reply_count,
+               (b.board_content LIKE '%&lt;img%') AS has_image
+        FROM board b
+        LEFT JOIN board_type bt     ON b.board_type_idx = bt.board_type_idx
+        LEFT JOIN member_profile mp ON b.mem_idx = mp.mem_idx
+        LEFT JOIN member m          ON b.mem_idx = m.mem_idx
+        WHERE b.board_is_deleted = 'N'
+        <if test="typeCode != null and typeCode != ''">
+            AND bt.board_type_code = #{typeCode}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    AND b.board_title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    AND b.board_content LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'writer'">
+                    AND mp.mem_nickname LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (b.board_title   LIKE CONCAT('%', #{keyword}, '%')
+                      OR b.board_content LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
+        ORDER BY b.board_idx DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    
+    <!-- ── 게시글 전체 수 ───────────────────────────────────── -->
+    <select id="countBoards" resultType="int">
+        SELECT COUNT(*)
+        FROM board b
+        LEFT JOIN board_type bt     ON b.board_type_idx = bt.board_type_idx
+        LEFT JOIN member_profile mp ON b.mem_idx = mp.mem_idx
+        WHERE b.board_is_deleted = 'N'
+        <if test="typeCode != null and typeCode != ''">
+            AND bt.board_type_code = #{typeCode}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'title'">
+                    AND b.board_title LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    AND b.board_content LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'writer'">
+                    AND mp.mem_nickname LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <otherwise>
+                    AND (b.board_title   LIKE CONCAT('%', #{keyword}, '%')
+                      OR b.board_content LIKE CONCAT('%', #{keyword}, '%'))
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <!-- 게시글 상세 -->
+    <select id="findBoardById" resultType="BoardVO">
+        SELECT b.board_idx,
+               b.mem_idx,
+               b.board_title,
+               b.board_content,
+               b.board_ip,
+               b.board_thumbnail,
+               b.board_view_count,
+               b.board_like,
+               b.board_type_idx,
+               b.board_regdate,
+               b.board_moddate,
+               b.board_is_deleted,
+               bt.board_type_code,
+               bt.board_type_name,
+               mp.mem_nickname,
+               m.mem_id
+        FROM board b
+        LEFT JOIN board_type bt     ON b.board_type_idx = bt.board_type_idx
+        LEFT JOIN member_profile mp ON b.mem_idx = mp.mem_idx
+        LEFT JOIN member m          ON b.mem_idx = m.mem_idx
+        WHERE b.board_idx = #{boardIdx}
+          AND b.board_is_deleted = 'N'
+    </select>
+
+    <!-- 게시글 좋아요 +1 -->
+    <update id="increaseBoardLike">
+        UPDATE board SET board_like = board_like + 1
+        WHERE board_idx = #{boardIdx}
+    </update>
+
+    <!-- 댓글 좋아요 +1 -->
+    <update id="increaseReplyLike">
+        UPDATE reply SET reply_like = reply_like + 1
+        WHERE reply_idx = #{replyIdx}
+    </update>
+
+    <!-- 조회수 +1 -->
+    <update id="increaseViewCount">
+        UPDATE board
+        SET board_view_count = board_view_count + 1
+        WHERE board_idx = #{boardIdx}
+    </update>
+
+    <!-- 게시글 등록 -->
+    <insert id="insertBoard" useGeneratedKeys="true" keyProperty="boardIdx">
+        INSERT INTO board (
+            mem_idx,
+            board_title,
+            board_content,
+            board_ip,
+            board_thumbnail,
+            board_type_idx
+        ) VALUES (
+            #{memIdx},
+            #{boardTitle},
+            #{boardContent},
+            #{boardIp},
+            #{boardThumbnail},
+            #{boardTypeIdx}
+        )
+    </insert>
+
+    <!-- 게시글 수정 -->
+    <update id="updateBoard">
+        UPDATE board
+        SET board_title   = #{boardTitle},
+            board_content = #{boardContent},
+            board_moddate = NOW()
+        WHERE board_idx = #{boardIdx}
+    </update>
+
+    <!-- 게시글 삭제 (soft) -->
+    <update id="deleteBoard">
+        UPDATE board
+        SET board_is_deleted = 'Y',
+            board_deldate    = NOW()
+        WHERE board_idx = #{boardIdx}
+    </update>
+
+    <!-- 댓글 수 -->
+    <select id="countRepliesByBoard" resultType="int">
+        SELECT COUNT(*)
+        FROM reply
+        WHERE board_idx = #{boardIdx}
+          AND reply_is_deleted = 'N'
+    </select>
+
+    <!-- 댓글 목록 (페이징) -->
+    <select id="findRepliesByBoardPaged" resultType="ReplyVO">
+        SELECT r.reply_idx,
+               r.board_idx,
+               r.mem_idx,
+               r.reply_content,
+               r.reply_ip,
+               r.reply_like,
+               r.reply_regdate,
+               r.reply_moddate,
+               r.reply_is_deleted,
+               r.reply_ref,
+               r.reply_step,
+               r.reply_depth,
+               mp.mem_nickname,
+               m.mem_id
+        FROM reply r
+        LEFT JOIN member m          ON r.mem_idx = m.mem_idx
+        LEFT JOIN member_profile mp ON r.mem_idx = mp.mem_idx
+        WHERE r.board_idx = #{boardIdx}
+          AND r.reply_is_deleted = 'N'
+        <choose>
+            <when test="sortType == 'latest'">
+                ORDER BY COALESCE(r.reply_ref, r.reply_idx) DESC, r.reply_step ASC
+            </when>
+            <otherwise>
+                ORDER BY COALESCE(r.reply_ref, r.reply_idx) ASC, r.reply_step ASC
+            </otherwise>
+        </choose>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 원댓글 수 (페이징 기준: depth=0인 원댓글 그룹 수) -->
+    <select id="countRootRepliesByBoard" resultType="int">
+        SELECT COUNT(DISTINCT reply_ref)
+        FROM reply
+        WHERE board_idx = #{boardIdx}
+          AND reply_is_deleted = 'N'
+          AND reply_depth = 0
+    </select>
+
+
+    <!-- 댓글 목록 -->
+    <select id="findRepliesByBoard" resultType="ReplyVO">
+        SELECT r.reply_idx,
+               r.board_idx,
+               r.mem_idx,
+               r.reply_content,
+               r.reply_ip,
+               r.reply_regdate,
+               r.reply_moddate,
+               r.reply_is_deleted,
+               r.reply_ref,
+               r.reply_step,
+               r.reply_depth,
+               r.reply_like,
+               mp.mem_nickname,
+               m.mem_id
+        FROM reply r
+        LEFT JOIN member m          ON r.mem_idx = m.mem_idx
+        LEFT JOIN member_profile mp ON r.mem_idx = mp.mem_idx
+        WHERE r.board_idx = #{boardIdx}
+          AND r.reply_is_deleted = 'N'
+        ORDER BY COALESCE(r.reply_ref, r.reply_idx) DESC, r.reply_step ASC
+    </select>
+
+    <!-- 댓글 등록 -->
+    <insert id="insertReply" useGeneratedKeys="true" keyProperty="replyIdx">
+        INSERT INTO reply (
+            board_idx,
+            mem_idx,
+            reply_content,
+            reply_ip,
+            reply_ref,
+            reply_step,
+            reply_depth
+        ) VALUES (
+            #{boardIdx},
+            #{memIdx},
+            #{replyContent},
+            #{replyIp},
+            #{replyRef},
+            #{replyStep},
+            #{replyDepth}
+        )
+    </insert>
+
+    <!-- 대댓 등록 전 step 밀기 -->
+    <update id="shiftReplyStep">
+        UPDATE reply
+        SET reply_step = reply_step + 1
+        WHERE board_idx = #{boardIdx}
+          AND reply_ref  = #{ref}
+          AND reply_step > #{step}
+    </update>
+
+    <!-- 댓글 단건 조회 -->
+    <select id="findReplyById" resultType="ReplyVO">
+        SELECT reply_idx,
+               board_idx,
+               mem_idx,
+               reply_content,
+               reply_ip,
+               reply_regdate,
+               reply_ref,
+               reply_step,
+               reply_depth
+        FROM reply
+        WHERE reply_idx = #{replyIdx}
+    </select>
+
+    <!-- 원댓 ref 업데이트 -->
+    <update id="updateReplyRef">
+        UPDATE reply
+        SET reply_ref = #{replyRef}
+        WHERE reply_idx = #{replyIdx}
+    </update>
+
+    <!-- 댓글 수정 -->
+    <update id="updateReply">
+        UPDATE reply
+        SET reply_content = #{replyContent},
+            reply_moddate = NOW()
+        WHERE reply_idx = #{replyIdx}
+    </update>
+
+    <!-- 댓글 삭제 (soft) -->
+    <update id="deleteReply">
+        UPDATE reply
+        SET reply_is_deleted = 'Y',
+            reply_deldate    = NOW()
+        WHERE reply_idx = #{replyIdx}
+    </update>
+
+</mapper>

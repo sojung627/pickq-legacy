@@ -1,0 +1,417 @@
+[전체 커밋 히스토리 조회 가능 여부 검토]
+- git rev-parse --is-shallow-repository 결과: false
+- 결론: 현재 로컬 저장소 기준 전체 commit 히스토리 조회 가능
+
+[작업 일지: 일자 - 커밋명]
+2026-04-19 - 마이페이지 프로필 연결/모바일 최적화
+2026-04-19 - 마이페이지 프로필 연결/모바일 최적화
+2026-04-19 - 배송처리 오류 해결
+2026-04-19 - 컴포넌트 크기 수정
+2026-04-19 - 경매 상세 레이아웃 깨짐 수정
+2026-04-19 - 메뉴 크기 조정
+2026-04-19 - 경매내역 null 값 출력 해결/채팅 갱신표시 오류 수정
+2026-04-19 - sql drop 문 정리
+2026-04-19 - 모바일 화면 최적화 및 컴포넌트 깨짐 해결
+2026-04-18 - 입찰자 크레딧 조회/리뷰페이지 연결, 거래내역 상세 수정
+2026-04-18 - 로고, 파비콘 구현/입찰자 등급, 별점조회 수정
+2026-04-18 - Merge remote-tracking branch 'origin/feature/hotfix' into feature/hotfix
+2026-04-17 - 입찰취소 로직 수정/중대 보안 결함 수정
+2026-04-17 - Merge pull request #82 from silvercode1130/feature/hotfix
+2026-04-17 - develop 버전 최신화/프론트 오류 해결
+2026-04-17 - develop 버전 최신화/프론트 오류 해결
+2026-04-17 - Merge pull request #80 from silvercode1130/feature/bid
+2026-04-17 - Merge branch 'develop' into feature/bid
+2026-04-17 - 최종 확인 중 (테스트 중)
+2026-04-17 - Merge pull request #79 from silvercode1130/feature/hotfix
+2026-04-17 - 에러 핸들링 수정
+2026-04-17 - 결제 페이지 배송지 리다이렉트 수정
+2026-04-17 - 에러핸들링 페이지 추가/모바일 화면 최적화 및 결제 화면 프론트 연결
+2026-04-17 - 프론트 정리/모바일 화면 최적화
+2026-04-17 - Merge remote-tracking branch 'origin/develop' into feature/bid
+2026-04-17 - 토스트 기능 테스트 중
+2026-04-17 - Merge pull request #78 from silvercode1130/feature/hotfix
+2026-04-17 - 결제실패 리다이렉트 수정
+2026-04-17 - 채팅 갱신처리 오류 해결/채팅 ui 수정
+2026-04-17 - 알림dto 수정/null-safe 처리/채팅 갱신처리 수정
+2026-04-17 - header 기능 에러 해결/거래 취소 플로우 보완
+2026-04-17 - 알림 버튼 hover시 모달처리 적용
+2026-04-17 - 채팅/결제정보 알림처리 및 채팅방 프론트 연결/경매/입찰 상태변화 방어로직 적용
+2026-04-17 - Merge pull request #77 from silvercode1130/feature/hotfix
+2026-04-17 - 모바일 프론트 수정 확인/배송지 에러 해결/플로팅버튼 구현
+2026-04-17 - Merge pull request #76 from silvercode1130/feature/websocket
+2026-04-17 - Merge branch 'develop' into feature/websocket
+2026-04-16 - Merge pull request #72 from silvercode1130/feature/board
+2026-04-16 - Merge branch 'develop' into feature/board
+2026-04-16 - Orders 로직 복구 후 결제 리다이렉트/세션 에러 수정
+2026-04-16 - Rollback:10cd114 /유실된 Orders 로직 복구
+2026-04-16 - Merge pull request #71 from silvercode1130/feature/member
+2026-04-16 - Merge branch 'develop' into feature/member
+2026-04-16 - Merge pull request #75 from silvercode1130/feature/websocket
+2026-04-16 - 결제 실패 리다이렉트 및 로그인 값 로직 수정
+2026-04-16 - Merge remote-tracking branch 'origin/develop' into feature/websocket
+2026-04-16 - 결제실패 리다이렉트 에러 해결
+2026-04-16 - Merge pull request #74 from silvercode1130/feature/payment
+2026-04-16 - Merge branch 'develop' into feature/member
+2026-04-16 - merge
+2026-04-16 - Merge remote-tracking branch 'origin/develop' into feature/payment
+2026-04-16 - Merge remote-tracking branch 'origin/develop' into feature/bid
+2026-04-16 - 마감일 날짜 선택 양식 바뀜
+2026-04-16 - Merge pull request #73 from silvercode1130/feature/websocket
+2026-04-16 - orders 삭제
+2026-04-16 - Merge branch 'feature/payment' of https://github.com/silvercode1130/java-ymca-final-project into feature/payment
+2026-04-16 - Orders 프론트용 DTO 생성/기존 로직 내에 Orders 상태변화 로직 추가
+2026-04-16 - bids status update
+2026-04-16 - Merge remote-tracking branch 'origin/feature/websocket' into feature/websocket
+2026-04-16 - Orders html 에러 해결중
+2026-04-16 - 알람 실시간 처리 프론트 연결
+2026-04-16 - 날짜 양식 분제 상황대비 커밋
+2026-04-16 - OrdersMapper 오류 해결, 프론트 연결 확인
+2026-04-16 - 모바일 최적화 / 게시판 검색 제목 2줄 수정
+2026-04-16 - notification 웹소켓 연결
+2026-04-16 - merge
+2026-04-16 - test 브랜치 병합/Alarm 중복 로직 삭제
+2026-04-16 - Merge remote-tracking branch 'origin/feature/websocket-test' into feature/websocket
+2026-04-16 - boardList 검색 시 제목두번 뜨는 문제 제목+내용으로 수정'
+2026-04-16 - notification 작업중/test 브랜치와 병합예정
+2026-04-16 - 웹소켓 연결, 실시간처리 완료
+2026-04-16 - Merge remote-tracking branch 'origin/feature/websocket-test' into feature/websocket-test
+2026-04-16 - develop 최신화 후 에러 해결
+2026-04-16 - 리뷰 수정(삭제처리 버튼href 없어서 추가)
+2026-04-16 - 웹소켓 기능 디버깅
+2026-04-16 - Merge branch 'feature/websocket-test' of https://github.com/silvercode1130/java-ymca-final-project into feature/websocket-test
+2026-04-16 - 웹소켓 기능 구현
+2026-04-16 - 에러 수정 완료(주소 프론트, 리뷰 충돌, 회원 프로필 삭제 버튼 지우기)
+2026-04-16 - Merge branch 'feature/websocket-test' of https://github.com/silvercode1130/java-ymca-final-project into develop
+2026-04-16 - 모바일 햄버거 기능구현
+2026-04-16 - merge
+2026-04-16 - 1
+2026-04-16 - orders/notification 기능 추가
+2026-04-16 - Merge remote-tracking branch 'origin/develop' into feature/bid
+2026-04-16 - merge 전 기록용 커밋
+2026-04-16 - Merge remote-tracking branch 'origin/develop' into feature/member
+2026-04-16 - develop 불러오기 위한 커밋
+2026-04-16 - develop 최신 merge
+2026-04-15 - Merge pull request #69 from silvercode1130/feature/member
+2026-04-15 - Merge pull request #68 from silvercode1130/feature/board
+2026-04-15 - Merge branch 'develop' into feature/board
+2026-04-15 - 리뷰 관리로 접속시 리뷰글 삭제 취소하면 테이블 사라지던 오류 수정 완료
+2026-04-15 - 회원가입 성공 시 리다이렉트 수정
+2026-04-15 - 멤버컨트롤러 병합
+2026-04-15 - Merge remote-tracking branch 'origin/develop' into feature/member
+2026-04-15 - merge 해야함
+2026-04-15 - 게시글 작성 중 로그인세션 만료, 로그인 후 게시글 유지 수정 / 댓글 등록 안되는 부분 수정
+2026-04-15 - merge 후 충돌 및 에러 해결
+2026-04-15 - Merge pull request #67 from silvercode1130/feature/bid
+2026-04-15 - Merge remote-tracking branch 'origin/develop' into feature/bid
+2026-04-15 - 상태 카테고리 위치 배열 수정, 입찰 이미지 수정, 리다이렉트 로직 수정
+2026-04-15 - Merge remote-tracking branch 'origin/develop' into feature/member
+2026-04-15 - 테스트 브랜치 생성
+2026-04-15 - Merge pull request #63 from silvercode1130/feature/payment
+2026-04-15 - Merge pull request #65 from silvercode1130/feature/websocket
+2026-04-15 - 프론트 연결 완료. 시연준비
+2026-04-15 - 탈퇴를 soft delete 처리
+2026-04-15 - remove all unused imports
+2026-04-15 - 프론트 연결 완료. 시연준비
+2026-04-15 - Merge remote-tracking branch 'origin/develop' into feature/payment
+2026-04-15 - 경매마감 idx 7로 변경되는 로직 추가
+2026-04-15 - merge 후 에러난 2개 해결 완료 및 수정 완료(로그인 비번 안보임, 프로필 이미지 404, post 탈퇴로 변경)
+2026-04-15 - merge
+2026-04-15 - Merge pull request #61 from silvercode1130/feature/board
+2026-04-15 - Merge remote-tracking branch 'origin/develop' into feature/board
+2026-04-15 - 로그인 리다이렉트 수정 header/auctionDetil
+2026-04-15 - Merge pull request #62 from silvercode1130/feature/websocket
+2026-04-15 - Merge remote-tracking branch 'origin/develop' into feature/bid
+2026-04-15 - 프론트 연결/배송지관리 에러 해결중
+2026-04-15 - 수정사항 수정
+2026-04-15 - 관리자 게시글 및 댓글 삭제 기능 추가
+2026-04-15 - Merge remote-tracking branch 'origin/develop' into feature/member
+2026-04-15 - 잘못 누름
+2026-04-15 - 프론트 연결 마무리
+2026-04-14 - Merge remote-tracking branch 'origin/develop' into feature/board
+2026-04-14 - Merge pull request #60 from silvercode1130/feature/websocket
+2026-04-14 - Merge branch 'develop' into feature/websocket
+2026-04-14 - 메인 페이지 프론트 연결 및 에러 해결
+2026-04-14 - Merge pull request #59 from silvercode1130/feature/bid
+2026-04-14 - Merge branch 'develop' into feature/bid
+2026-04-14 - Merge pull request #58 from silvercode1130/feature/payment
+2026-04-14 - Merge branch 'develop' into feature/payment
+2026-04-14 - Merge pull request #57 from silvercode1130/feature/member
+2026-04-14 - html 프론트 수동병홥, 검색기능 수정
+2026-04-14 - 1
+2026-04-14 - 결제로직 수정
+2026-04-14 - 비로그인>게시글상세>로그인 시 게시글 상세로 돌아오도록 MemberController 수정
+2026-04-14 - Merge remote-tracking branch 'origin/develop' into feature/board
+2026-04-14 - Merge remote-tracking branch 'origin/feature/member' into feature/member
+2026-04-14 - 좋아요 후 목록으로 이동시 카테고리로 이동되는 문제 수정
+2026-04-14 - 리뷰 상세보기 수정
+2026-04-14 - Merge branch 'develop' into feature/member
+2026-04-14 - 로그인 타이머에 이모지 넣기
+2026-04-14 - 로그인 타이머 제한 걸어두기
+2026-04-14 - 로직추가 테스트 준비
+2026-04-14 - 1
+2026-04-14 - Merge remote-tracking branch 'origin/develop' into feature/payment
+2026-04-14 - 프로필 기본 이미지 등록
+2026-04-14 - 프로필 이미지 404 에러 수정
+2026-04-14 - mypage btn add
+2026-04-14 - merge 후 점검 중 이상한 부분 발견(리뷰 평군 별점, 리뷰검색 기능)
+2026-04-14 - Merge remote-tracking branch 'origin/feature/websocket' into feature/bid
+2026-04-14 - css 모두 지움(충돌나는지 확인과정 중)
+2026-04-14 - Merge pull request #55 from silvercode1130/feature/payment
+2026-04-14 - Merge remote-tracking branch 'origin/develop' into feature/member
+2026-04-14 - 로그인 5회 제한 거는 중
+2026-04-14 - develop 최신버전 동기화/마이페이지 깨짐 해결
+2026-04-14 - Merge remote-tracking branch 'origin/develop' into feature/websocket
+2026-04-14 - chat 기능 추가
+2026-04-14 - Merge pull request #54 from silvercode1130/feature/member
+2026-04-14 - Merge branch 'develop' into feature/member
+2026-04-14 - Merge pull request #53 from silvercode1130/feature/bid
+2026-04-13 - 사소한 기능 추가(비번 보이게, 아이디 저장 기능 추가, 비번 찾기 기능 disabled, 리뷰제약설정)
+2026-04-13 - 사소한 기능 추가(비번 보이게, 아이디 저장 기능 추가)
+2026-04-13 - 로그인 api 구현.... commit 했었나..?ㅠ
+2026-04-13 - UX 부분 수정, 토스트 기능 추가
+2026-04-13 - 로그인 api 구현 끝
+2026-04-13 - 로그인 api 로딩중 추가
+2026-04-13 - 로그인 api 버튼 추가
+2026-04-13 - 로그인 api 개선
+2026-04-13 - 로그인 api로 가입 시키기 성공
+2026-04-13 - 이미지 기능 수정
+2026-04-13 - 경매 상태에 따른 카테고리 생성, 입착과 경매 순위 및 순번 수정
+2026-04-13 - 리뷰 별점 평균 색깔 수정
+2026-04-13 - 260413 merge
+2026-04-13 - 프론트 연결 중
+2026-04-11 - payment 결제중복방지 쿼리 추가
+2026-04-11 - mypage complete
+2026-04-11 - paymentDB안에있던 배송 관련 컬럼 delivery 테이블 새로 만들고 분리, 쿼리 수정 및 MyPage 경매자 결제내역 판매자 배송정보 창 추가
+2026-04-10 - 로그인 api 준비중
+2026-04-10 - 260410 payment courier add
+2026-04-10 - 중간 저장용 커밋
+2026-04-10 - 프로필 수정 끝
+2026-04-10 - pr용 - 프로필 수정중
+2026-04-10 - Merge branch 'develop' into feature/member
+2026-04-10 - pay mapping edit
+2026-04-10 - pr용
+2026-04-10 - pr용 (프로필 수정중)
+2026-04-10 - 머지 후 기록 남기기 (이미지 수정용)
+2026-04-10 - payment edit
+2026-04-10 - 리뷰 평균 수정 완료
+2026-04-10 - 이미지기능 수정 중
+2026-04-10 - 회원정보 수정창에 제약조건 구현 완료
+2026-04-10 - 회원정보 수정창에서 제약조건 거는 중
+2026-04-10 - Merge remote-tracking branch 'origin/feature/websocket' into feature/board
+2026-04-10 - 프론트 부분 연결 및 penalty/grade 로직 추가
+2026-04-10 - Merge pull request #46 from silvercode1130/feature/board
+2026-04-10 - Merge branch 'develop' into feature/board
+2026-04-10 - Merge pull request #47 from silvercode1130/feature/payment
+2026-04-10 - Merge pull request #45 from silvercode1130/feature/member
+2026-04-09 - 맵핑 다 바꿈(리뷰는 안바꿈)
+2026-04-09 - 맵핑 다 바꿈(리뷰는 안바꿈)
+2026-04-09 - toss payments restore
+2026-04-09 - 게시판 이미지업로드 위치 수정, 댓글 작성시 카테고리 게시판으로 이동 되는 문제 수정
+2026-04-09 - Merge branch 'develop' into feature/member
+2026-04-09 - 비밀번호 기능 끝
+2026-04-09 - 기존 비밀번호는 통과 안시키는 기능만 해결하면 끝남
+2026-04-09 - 비밀번호 부분 해결하기
+2026-04-09 - payment escrow
+2026-04-09 - grade/penalty VO 추가 및 멤버필드 수정/스키마 변경
+2026-04-09 - 인증번호 인증 시키기 성공
+2026-04-09 - Merge pull request #44 from silvercode1130/feature/payment
+2026-04-09 - Merge pull request #43 from silvercode1130/feature/bid
+2026-04-09 - mypage restore
+2026-04-09 - 관리자 권한 수정, 이미지 오류 수정
+2026-04-09 - 관리자 권한 등 추가
+2026-04-09 - 비밀번호 인증 절반 정도 구현
+2026-04-09 - 비밀번호 인증 만드는 중
+2026-04-09 - Merge pull request #42 from silvercode1130/feature/websocket
+2026-04-09 - 옥션 수동머지/메인 프론트 이식
+2026-04-09 - 비밀번호 발급 인증번호 받는 부분 해야함
+2026-04-09 - Merge remote-tracking branch 'origin/develop' into feature/member
+2026-04-09 - 비밀번호 발급 페이지 제작 중
+2026-04-09 - bid 수동머지 및 충돌 해결
+2026-04-09 - Merge remote-tracking branch 'origin/feature/bid' into feature/websocket
+2026-04-08 - Merge remote-tracking branch 'origin/feature/websocket' into feature/websocket
+2026-04-08 - 뷰 테이블 스테이터스 컬럼 추가
+2026-04-08 - bid pr 수동으로 머지
+2026-04-08 - Merge remote-tracking branch 'origin/feature/bid' into feature/websocket
+2026-04-08 - Merge pull request #40 from silvercode1130/feature/member
+2026-04-08 - 뷰 테이블 생성으로 인한 모든 오류 수정
+2026-04-08 - 리뷰 기능 구현 끝
+2026-04-08 - 임시삭제 및 영구삭제 기능 구현
+2026-04-08 - 임시삭제랑 영구삭제 만드는 중 (임시 삭제 가능)
+2026-04-08 - 관리자 페이지 버튼만 해결하면 됨(404 err)
+2026-04-08 - 리뷰 파트 다 끝(리뷰 관리 페이지만 만들면 진짜 끝)
+2026-04-08 - 리뷰 상세보기에 가격에 , 추가
+2026-04-08 - 리뷰 잠재 버그 수정 완료
+2026-04-08 - 리뷰 파트 완전히 끝(관리자 페이지만 만들면 됨)
+2026-04-08 - 리뷰이모지 바꾸는 중(관리자 페이지만 만들면 끝)
+2026-04-08 - 조회 기능 복구 (조회만 오류 수정 나머지는 복구 중)
+2026-04-08 - Merge pull request #39 from silvercode1130/feature/member
+2026-04-08 - 내가 받은 리뷰 기능 만들 (더미데이터로 확인 필요)
+2026-04-08 - 뷰테이블 생성 후 오류 수정 중
+2026-04-07 - 리뷰 삭제 기능 구현 완료 (관리자 페이지 필요할 것 같음...)
+2026-04-07 - 리뷰 삭제 기능이 관리자만 보이게 만듦
+2026-04-07 - 리뷰 상세 조회 구현 완료 (admin만 리뷰 삭제 보기 기능 만들어야 함)
+2026-04-07 - Merge branch 'feature/member' of https://github.com/silvercode1130/java-ymca-final-project into feature/member
+2026-04-07 - 리뷰 상세조회 만드는 중
+2026-04-07 - Merge pull request #37 from silvercode1130/feature/board
+2026-04-07 - Merge pull request #35 from silvercode1130/feature/member
+2026-04-07 - 로그인 후 리다렉트 수정
+2026-04-07 - SQL 좋아요 컬럼 추가 / 컬럼명과 순서에 따라 Vo 및 html 수정
+2026-04-07 - Merge branch 'develop' into feature/member
+2026-04-07 - 게시글 리스트 이미지 표현 기능 추가
+2026-04-07 - 리뷰 조회 및 리뷰 작성 기능 구현(리뷰 삭제는 admin만 가능하게, 리뷰 조회 기능(상세정보) 부분만 구현하면 리뷰 전부 끝)
+2026-04-07 - 파일업로드 에디트(SummerNote) 적용
+2026-04-07 - 리뷰 작성 가능(작성한 리뷰는 조회안됨 고쳐야 함)
+2026-04-07 - Merge pull request #33 from silvercode1130/feature/board
+2026-04-07 - 오류수정 및  dto 수정
+2026-04-06 - url 수정/ db수정 및 오류 수정
+2026-04-06 - 웹소켓 db 작업 필요
+2026-04-06 - 좋아요 기능 추가 DB에 좋아요수 컬럼(게시글용/댓글용) 추가. 좋아요/조회수 한번만 적용되도록 함.
+2026-04-06 - boardDetail 목록보기 위치 수정
+2026-04-06 - 자신이 작성한 댓글 수정 기능 추가 xml / Service / detail / js 파일 수정
+2026-04-06 - board 로그인 관련 수정 및 js 파일 분할
+2026-04-06 - 옥션/비드VO 정리 및 application property 깨짐 해결
+2026-04-06 - Merge remote-tracking branch 'origin/develop' into feature/websocket
+2026-04-06 - 리뷰 만든는 중
+2026-04-06 - 웹소켓 작업중
+2026-04-06 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/member
+2026-04-06 - 리뷰 만드는 중
+2026-04-06 - Merge pull request #32 from silvercode1130/feature/bid
+2026-04-06 - Merge remote-tracking branch 'origin/develop' into feature/bid
+2026-04-06 - 구매요청 밍 입찰 제안 금액 단위 수정
+2026-04-06 - 낙찰, 입찰 상세보기 등 구현 완료
+2026-04-03 - 경매 crud 구현(수정은 빼고)
+2026-04-03 - 리뷰 제작 중
+2026-04-03 - Merge remote-tracking branch 'origin/develop' into feature/board
+2026-04-03 - Merge pull request #30 from silvercode1130/feature/member
+2026-04-03 - board 작업중/ member 최신화중 오루 발생
+2026-04-03 - merge 후 에러, 로직 꼬임 해결
+2026-04-03 - Merge branch 'feature/member' of https://github.com/silvercode1130/java-ymca-final-project into feature/member
+2026-04-03 - 리뷰 db, vo 수정
+2026-04-03 - Merge branch 'develop' into feature/member
+2026-04-02 - 전부 끝! (리뷰 db, vo 완료)
+2026-04-02 - 생성부분 완료(c)
+2026-04-02 - 파이널 프로젝트 끝
+2026-04-02 - 프로필 완료(js만 남음)
+2026-04-02 - 프로필 저장 + 수정 기능 구현(js 등등 해야할 잔업이 남아있음)
+2026-04-01 - 주소 기능 구현 완료 (끝)
+2026-04-01 - 아직 오류 수정 중 집 가서 마무리 하기
+2026-04-01 - 주소 수정 기능 구현 완료
+2026-04-01 - 주소 삭제 기능 구현
+2026-04-01 - 프로필을 멤버로 이동 + 멤버 컨트롤러, xml 살짝 수정
+2026-03-31 - Merge remote-tracking branch 'origin/develop' into feature/board
+2026-03-31 - board 내용 수정
+2026-03-31 - Merge pull request #27 from silvercode1130/feature/websocket
+2026-03-31 - 멘토링 피드백용
+2026-03-31 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/member
+2026-03-31 - 로그인 인터셉터 구현
+2026-03-31 - Merge pull request #23 from silvercode1130/feature/member
+2026-03-31 - Merge branch 'develop' into feature/member
+2026-03-31 - Merge pull request #25 from silvercode1130/feature/mypage
+2026-03-31 - Merge pull request #24 from silvercode1130/feature/bid
+2026-03-31 - Merge pull request #26 from silvercode1130/feature/websocket
+2026-03-31 - 메인/코어 프론트 연결
+2026-03-31 - 26-03-31 mypage debug
+2026-03-31 - 구매요청 글, 입찰제안 글 등록 로직 구현
+2026-03-31 - 대표주소는 하나만 기능 추가
+2026-03-31 - 주소 저장 수정(isPrimary, disabled, checkbox(label))
+2026-03-31 - merge 에러 해결
+2026-03-31 - Merge pull request #22 from silvercode1130/feature/websocket
+2026-03-31 - 260331 전체 기능 통합 및 bid 수동병합
+2026-03-31 - 주소저장 완료 + 로그인 alert창 완료
+2026-03-31 - 주소저장 기능 구현 + 로그인 alert창 추가
+2026-03-31 - bid pr 오류 수동으로 conflict resolved
+2026-03-31 - Merge pull request #20 from silvercode1130/feature/member
+2026-03-31 - Merge branch 'develop' into feature/member
+2026-03-31 - Merge pull request #18 from silvercode1130/feature/board
+2026-03-31 - Merge branch 'develop' into feature/board
+2026-03-31 - Merge pull request #17 from silvercode1130/feature/mypage
+2026-03-30 - 페이지만 구현 아직 버튼과 기능은 수정 중
+2026-03-30 - 주소저장 기능만 구현하면 끝!
+2026-03-30 - boardList.html isLogin 수정
+2026-03-30 - 회원 주소 만드는 중 (그 외 다 정상작동 중 - 로그인, 회원가입, 로그아웃, 탈퇴)
+2026-03-30 - Merge remote-tracking branch 'origin/develop' into feature/board
+2026-03-30 - Merge branch 'feature/board' into develop
+2026-03-30 - board 수정 중 임시저장
+2026-03-30 - myauctionview debug
+2026-03-30 - mystatus board completed auctionview bidview bidvo auctionvo mypagemapper, interface, service, controller edit
+2026-03-30 - ?
+2026-03-30 - Merge remote-tracking branch 'origin/develop' into feature/mypage
+2026-03-30 - my status test 1
+2026-03-30 - 디테일 페이지 기능 구현중
+2026-03-30 - js 수정 및 회원정보 수정 수정
+2026-03-28 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/member
+2026-03-28 - 회원정보 수정 기능 구현
+2026-03-28 - 인터셉터 수정 완료
+2026-03-27 - 인터셉터 수정
+2026-03-27 - Merge pull request #16 from silvercode1130/feature/board
+2026-03-27 - test2
+2026-03-27 - Merge pull request #15 from silvercode1130/feature/websocket
+2026-03-27 - test
+2026-03-27 - Merge branch 'feature/websocket' of https://github.com/silvercode1130/java-ymca-final-project into feature/websocket
+2026-03-27 - Merge pull request #14 from silvercode1130/develop
+2026-03-27 - test
+2026-03-27 - git pull develop
+2026-03-27 - git pull develop
+2026-03-27 - Merge pull request #12 from silvercode1130/feature/websocket
+2026-03-27 - Merge branch 'develop' into feature/websocket
+2026-03-27 - Merge pull request #13 from silvercode1130/feature/member
+2026-03-27 - 회원가입 / 로그인 / 로그아웃 / 탈퇴 기능 추가 및 수정
+2026-03-26 - 회원가입 / 로그인 / 탈퇴 / 로그아웃 기능 구현 (회원정보 수정 제작중)
+2026-03-26 - auction soft compelite
+2026-03-26 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/mypage
+2026-03-26 - Merge pull request #11 from silvercode1130/feature/bid
+2026-03-26 - 중요한 수정: 경매/입찰 VO/DDL 변경
+2026-03-25 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/mypage
+2026-03-25 - add elements mypage
+2026-03-25 - 구매요청 리스트 조회 기능 구현
+2026-03-24 - Merge pull request #10 from silvercode1130/feature/member
+2026-03-24 - Merge branch 'develop' into feature/member
+2026-03-24 - Merge pull request #9 from silvercode1130/feature/board
+2026-03-24 - MyPage Mapper Service Controller created
+2026-03-24 - 로그인 기능 구현 완료
+2026-03-24 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/mypage
+2026-03-24 - member 로그인 세션 저장값에 맞춰  isLogin으로 변경
+2026-03-24 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/websocket
+2026-03-24 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/bid
+2026-03-24 - member, board 완성본 가져옴
+2026-03-24 - Merge pull request #8 from silvercode1130/feature/board
+2026-03-24 - boardList에 .do 제거
+2026-03-24 - Merge pull request #6 from silvercode1130/feature/member
+2026-03-24 - Merge branch 'develop' into feature/member
+2026-03-24 - Merge pull request #7 from silvercode1130/feature/board
+2026-03-24 - 로그인 시 board로 이동
+2026-03-24 - BoardMapper 오류 수정
+2026-03-24 - 테스트용 더미 데이터 추가
+2026-03-24 - Board 기능 완성
+2026-03-24 - thymeleaf로 로그인 및  회원가입 변경
+2026-03-23 - db 연결 오류 수정
+2026-03-23 - Merge branch 'develop' of https://github.com/silvercode1130/java-ymca-final-project into feature/websocket
+2026-03-23 - Merge remote-tracking branch 'origin/feature/board' into feature/board
+2026-03-23 - application properties change
+2026-03-23 - mystatus change little
+2026-03-23 - pull and sql change
+2026-03-23 - 보호테스트
+2026-03-23 - 보호테스트
+2026-03-21 - Merge pull request #4 from silvercode1130/feature/websocket
+2026-03-21 - DDL파일 DB 생성용 명령어 추가
+2026-03-20 - Merge pull request #3 from silvercode1130/feature/websocket
+2026-03-20 - DDL item category 코드테이블 추가, BoardVO import 수정
+2026-03-20 - Merge remote-tracking branch 'origin/feature/board' into feature/board
+2026-03-20 - git pull
+2026-03-20 - 수정
+2026-03-20 - sql, db account created and connect
+2026-03-20 - Merge pull request #2 from silvercode1130/feature/member
+2026-03-20 - 회원가입 로그인 구현
+2026-03-20 - Merge pull request #1 from silvercode1130/feature/websocket
+2026-03-20 - 보드 타입 코드테이블 추가
+2026-03-20 - domain import fixed
+2026-03-20 - myauctions, mybids name and package changed
+2026-03-20 - 소정 브랜치 생성
+2026-03-19 - myauctions, mybids package,html created
+2026-03-19 - templates/vies/board생성, boardList.html 생성
+2026-03-19 - controller, templates 패키지 생성
+2026-03-19 - README 수정, 기타파일 정리
+2026-03-19 - 260319 VO/DDL 확정, main 브랜치 보호조치
+2026-03-12 - README 수정
+2026-03-09 - vo 구조 1차완성 / erd 청사진 완성
+2026-03-06 - Initial commit

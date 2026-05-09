@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>내 입찰 목록 - 마이페이지</title>
+</head>
+<body>
+	<div layout:fragment="content">
+
+		<div
+			class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+
+			<!-- 헤더 -->
+			<div
+				class="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+				<div>
+					<h2 class="text-lg sm:text-xl font-semibold text-[#222222]">내
+						입찰 목록</h2>
+					<p class="mt-1 text-xs sm:text-sm text-[#767676]">내가 참여한 판매
+						제안(입찰) 목록</p>
+				</div>
+				<div>
+					<a href="/mypage/sales"
+						class="inline-flex items-center px-4 py-2.5 rounded-md border border-gray-300 text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+						판매 내역 보기 </a>
+				</div>
+			</div>
+
+			<!-- 본문 -->
+			<div class="px-4 py-4 sm:px-6 sm:py-5">
+
+				<!-- 비어있을 때 -->
+				<div th:if="${#lists.isEmpty(bids)}"
+					class="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-lg">
+					참여한 입찰이 없습니다.</div>
+
+				<!-- 데이터 있을 때 -->
+				<div th:if="${!#lists.isEmpty(bids)}" class="space-y-3">
+
+					<!-- 데스크탑: 헤더 -->
+					<div
+						class="hidden md:grid md:grid-cols-[3fr_2fr_1.5fr_1.5fr_1.5fr_2fr] text-[11px] text-gray-500 px-2 pb-2 border-b border-gray-100">
+						<span>경매 제목</span> <span>상품명</span> <span>브랜드</span> <span
+							class="text-right">제안 가격</span> <span class="text-center">입찰
+							상태</span> <span class="text-center">입찰일</span>
+					</div>
+
+					<!-- 각 입찰 카드/행 -->
+					<div th:each="bid : ${bids}"
+						class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 sm:px-5 sm:py-4 hover:border-[#7CBD00] transition-colors">
+
+						<!-- 데스크탑 뷰 -->
+						<div
+							class="hidden md:grid md:grid-cols-[3fr_2fr_1.5fr_1.5fr_1.5fr_2fr] items-center text-xs sm:text-sm gap-2">
+
+							<!-- 경매 제목 (링크) -->
+							<div class="truncate">
+								<a th:href="@{/auctions/{idx}(idx=${bid.auctionIdx})}"
+									th:text="${bid.auctionTitle}"
+									class="text-[#222222] font-semibold hover:underline"> </a>
+							</div>
+
+							<!-- 상품명 -->
+							<div class="text-gray-700" th:text="${bid.itemName}"></div>
+
+							<!-- 브랜드 -->
+							<div class="text-gray-600"
+								th:text="${bid.itemBrand != null ? bid.itemBrand : '-'}">
+							</div>
+
+							<!-- 제안 가격 -->
+							<div class="text-right font-semibold text-[#222222]"
+								th:text="${#numbers.formatInteger(bid.bidPrice, 0, 'COMMA') + '원'}">
+							</div>
+
+							<!-- 입찰 상태 -->
+							<div class="text-center">
+								<span
+									class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold"
+									th:classappend="
+										${bid.bidStatusIdx == 1} ? ' bg-[#E6F4D6] text-[#4C7C00]' :
+										(${bid.bidStatusIdx == 2} ? ' bg-blue-50 text-blue-700' :
+										(${bid.bidStatusIdx == 3} ? ' bg-gray-100 text-gray-600' : ' bg-gray-100 text-gray-500'))"
+									th:text="${bid.bidStatusName}">일반</span>
+							</div>
+
+							<!-- 입찰일 -->
+							<div class="text-center text-[11px] text-gray-500"
+								th:text="${#temporals.format(bid.bidRegdate, 'yyyy-MM-dd HH:mm')}">
+							</div>
+						</div>
+
+						<!-- 모바일 뷰 -->
+						<div class="md:hidden space-y-2">
+							<!-- 제목 + 상태 -->
+							<div class="flex justify-between items-start gap-2">
+								<div>
+									<a th:href="@{/auctions/{idx}(idx=${bid.auctionIdx})}"
+										th:text="${bid.auctionTitle}"
+										class="text-sm font-semibold text-[#222222] hover:underline">
+									</a>
+									<div class="mt-0.5 text-[11px] text-gray-500"
+										th:text="${bid.itemBrand != null ? bid.itemBrand : '-'}">
+									</div>
+								</div>
+								<div class="text-right">
+									<span
+										class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+										th:classappend="
+											${bid.bidStatusIdx == 1} ? ' bg-[#E6F4D6] text-[#4C7C00]' :
+											(${bid.bidStatusIdx == 2} ? ' bg-blue-50 text-blue-700' :
+											(${bid.bidStatusIdx == 3} ? ' bg-gray-100 text-gray-600' : ' bg-gray-100 text-gray-500'))"
+										th:text="${bid.bidStatusName}">일반</span>
+									<div class="text-[11px] text-gray-400"
+										th:text="${#temporals.format(bid.bidRegdate, 'yyyy-MM-dd HH:mm')}"></div>
+								</div>
+							</div>
+
+							<!-- 가격 정보 -->
+							<div
+								class="flex justify-between items-center text-[11px] text-gray-600">
+								<div>
+									<div class="text-gray-400">제안 가격</div>
+									<div class="font-semibold text-[#222222]"
+										th:text="${#numbers.formatInteger(bid.bidPrice, 0, 'COMMA') + '원'}"></div>
+								</div>
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

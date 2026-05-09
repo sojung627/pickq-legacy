@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>내가 쓴 글 - 마이페이지</title>
+</head>
+<body>
+	<div layout:fragment="content">
+
+		<div
+			class="border border-gray-200 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+			<!-- 헤더 -->
+			<div class="px-6 py-5 border-b border-gray-100">
+				<h2 class="text-lg sm:text-xl font-bold text-gray-900">내가 쓴 글</h2>
+				<p class="mt-1 text-xs sm:text-sm text-gray-600">내가 작성한 커뮤니티 게시글
+				</p>
+			</div>
+
+			<!-- 내용 -->
+			<div class="px-6 py-6">
+				<!-- 게시글 없을 때 -->
+				<div th:if="${#lists.isEmpty(boards)}"
+					class="py-10 text-center text-sm text-gray-500">작성한 게시글이
+					없습니다.</div>
+
+				<!-- 게시글 목록 있을 때 -->
+				<div th:if="${!#lists.isEmpty(boards)}" class="space-y-3">
+
+					<!-- 헤더 라인 (테이블 헤더 역할) -->
+					<div
+						class="hidden md:grid md:grid-cols-[1.5fr_3fr_1fr_1fr_1fr_1.7fr] text-[11px] text-gray-500 px-2 pb-2 border-b border-gray-100">
+						<span>게시판</span> <span>제목</span> <span class="text-center">조회수</span>
+						<span class="text-center">좋아요</span> <span class="text-center">댓글
+							수</span> <span class="text-right">작성일</span>
+					</div>
+
+					<!-- 각 게시글 카드/행 -->
+					<div th:each="board : ${boards}"
+						class="border border-gray-100 rounded-lg px-3 sm:px-4 py-3 hover:border-[#7CBD00] transition-colors">
+
+						<!-- 데스크탑: 테이블 형태 -->
+						<div
+							class="hidden md:grid md:grid-cols-[1.5fr_3fr_1fr_1fr_1fr_1.7fr] items-center text-sm">
+							<div class="text-gray-700 text-xs sm:text-sm"
+								th:text="${board.boardTypeName}"></div>
+							<div class="truncate">
+								<a
+									th:href="@{/boards/{type}/{idx}(type=${board.boardTypeCode}, idx=${board.boardIdx})}"
+									th:text="${board.boardTitle}"
+									class="text-gray-900 hover:underline"> </a>
+							</div>
+							<div class="text-center text-xs text-gray-600"
+								th:text="${board.boardViewCount}"></div>
+							<div class="text-center text-xs text-gray-600"
+								th:text="${board.boardLike}"></div>
+							<div class="text-center text-xs text-gray-600"
+								th:text="${board.replyCount}"></div>
+							<div class="text-right text-xs text-gray-400"
+								th:text="${#temporals.format(board.boardRegdate, 'yyyy-MM-dd HH:mm')}">
+							</div>
+						</div>
+
+						<!-- 모바일: 카드 형태 -->
+						<div class="md:hidden space-y-1">
+							<div class="flex items-center justify-between">
+								<span class="text-[11px] text-gray-500"
+									th:text="${board.boardTypeName}"> </span> <span
+									class="text-[11px] text-gray-400"
+									th:text="${#temporals.format(board.boardRegdate, 'yyyy-MM-dd HH:mm')}">
+								</span>
+							</div>
+							<div>
+								<a
+									th:href="@{/boards/{type}/{idx}(type=${board.boardTypeCode}, idx=${board.boardIdx})}"
+									th:text="${board.boardTitle}"
+									class="text-sm font-semibold text-gray-900 hover:underline">
+								</a>
+							</div>
+							<div class="flex items-center gap-3 text-[11px] text-gray-500">
+								<span>조회 <span th:text="${board.boardViewCount}"></span></span>
+								<span>좋아요 <span th:text="${board.boardLike}"></span></span> <span>댓글
+									<span th:text="${board.replyCount}"></span>
+								</span>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.springbootstudy.bbs.mapper.OrdersMapper">
+
+    <select id="findByAuctionAndBid" resultType="com.springbootstudy.bbs.domain.OrdersVO">
+        SELECT *
+        FROM orders
+        WHERE auction_idx = #{auctionIdx}
+          AND bid_idx = #{bidIdx}
+        LIMIT 1
+    </select>
+
+    <select id="findByBidIdx" resultType="com.springbootstudy.bbs.domain.OrdersVO">
+        SELECT *
+        FROM orders
+        WHERE bid_idx = #{bidIdx}
+        LIMIT 1
+    </select>
+
+    <select id="findByOrderIdx" resultType="com.springbootstudy.bbs.domain.OrdersVO">
+        SELECT *
+        FROM orders
+        WHERE order_idx = #{orderIdx}
+        LIMIT 1
+    </select>
+
+    <insert id="insertOrder"
+            parameterType="com.springbootstudy.bbs.domain.OrdersVO"
+            useGeneratedKeys="true" keyProperty="orderIdx" keyColumn="order_idx">
+        INSERT INTO orders (
+            auction_idx,
+            bid_idx,
+            buyer_idx,
+            seller_idx,
+            order_amount,
+            order_status,
+            is_settled
+        ) VALUES (
+            #{auctionIdx},
+            #{bidIdx},
+            #{buyerIdx},
+            #{sellerIdx},
+            #{orderAmount},
+            #{orderStatus},
+            #{isSettled}
+        )
+    </insert>
+
+    <update id="updateOrderPaid">
+        UPDATE orders
+        SET order_status = 'PAID',
+            paid_at = CASE WHEN paid_at IS NULL THEN NOW() ELSE paid_at END
+        WHERE order_idx = #{orderIdx}
+          AND order_status IN ('CREATED', 'PAID')
+    </update>
+
+    <update id="updateOrderShipped">
+        UPDATE orders
+        SET order_status = 'SHIPPED',
+            shipped_at = CASE WHEN shipped_at IS NULL THEN NOW() ELSE shipped_at END
+        WHERE order_idx = #{orderIdx}
+          AND order_status IN ('PAID', 'SHIPPED')
+    </update>
+
+    <update id="updateOrderConfirmed">
+        UPDATE orders
+        SET order_status = 'CONFIRMED',
+            confirmed_at = CASE WHEN confirmed_at IS NULL THEN NOW() ELSE confirmed_at END,
+            is_settled = 'Y'
+        WHERE order_idx = #{orderIdx}
+          AND order_status IN ('SHIPPED', 'CONFIRMED')
+    </update>
+
+    <update id="updateOrderCanceled">
+        UPDATE orders
+        SET order_status = 'CANCELED',
+            refund_at = CASE WHEN refund_at IS NULL THEN NOW() ELSE refund_at END,
+            is_settled = 'N'
+        WHERE order_idx = #{orderIdx}
+          AND order_status IN ('CREATED', 'PAID', 'SHIPPED', 'CANCELED')
+    </update>
+
+    <sql id="ordersListColumns">
+        o.order_idx AS orderIdx,
+        o.auction_idx AS auctionIdx,
+        o.bid_idx AS bidIdx,
+        o.buyer_idx AS buyerIdx,
+        o.seller_idx AS sellerIdx,
+        o.order_amount AS orderAmount,
+        o.order_status AS orderStatusCode,
+        CASE
+            WHEN o.order_status = 'CREATED' THEN '결제대기'
+            WHEN o.order_status = 'PAID' THEN '결제완료'
+            WHEN o.order_status = 'SHIPPED' THEN '배송중'
+            WHEN o.order_status = 'CONFIRMED' THEN '구매확정'
+            WHEN o.order_status = 'CANCELED' THEN '취소'
+            ELSE o.order_status
+        END AS orderStatusName,
+        o.is_settled AS isSettled,
+        o.order_regdate AS orderRegdate,
+        o.paid_at AS paidAt,
+        o.shipped_at AS shippedAt,
+        o.confirmed_at AS confirmedAt,
+        o.refund_at AS refundAt,
+        a.auction_title AS auctionTitle,
+        i.item_name AS itemName,
+        bm.mem_id AS buyerMemId,
+        sm.mem_id AS sellerMemId,
+        COALESCE(bp.mem_nickname, bm.mem_id) AS buyerNickname,
+        COALESCE(sp.mem_nickname, sm.mem_id) AS sellerNickname,
+        d.courier_company AS courierCompany,
+        d.tracking_number AS trackingNumber,
+        r.review_idx AS reviewIdx,
+        COALESCE(p.pay_status, 'READY') AS paymentStatusCode,
+        CASE
+            WHEN COALESCE(p.pay_status, 'READY') = 'READY' THEN '결제대기'
+            WHEN p.pay_status = 'DONE' THEN '결제완료'
+            WHEN p.pay_status = 'CONFIRMED' THEN '구매확정'
+            WHEN p.pay_status = 'CANCELED' THEN '결제취소'
+            WHEN p.pay_status = 'EXPIRED' THEN '만료'
+            ELSE COALESCE(p.pay_status, 'READY')
+        END AS paymentStatusName,
+        COALESCE(d.delivery_status, 'READY') AS shippingStatusCode,
+        CASE
+            WHEN COALESCE(d.delivery_status, 'READY') = 'READY' THEN '배송전'
+            WHEN d.delivery_status = 'SHIPPING' THEN '배송중'
+            WHEN d.delivery_status = 'DELIVERED' THEN '배송완료'
+            ELSE COALESCE(d.delivery_status, 'READY')
+        END AS shippingStatusName
+    </sql>
+
+    <sql id="ordersListFrom">
+        FROM orders o
+        INNER JOIN auction a ON a.auction_idx = o.auction_idx
+        INNER JOIN bid b ON b.bid_idx = o.bid_idx
+        INNER JOIN item i ON i.item_idx = b.item_idx
+        INNER JOIN member bm ON bm.mem_idx = o.buyer_idx
+        LEFT JOIN member_profile bp ON bp.mem_idx = bm.mem_idx
+        INNER JOIN member sm ON sm.mem_idx = o.seller_idx
+        LEFT JOIN member_profile sp ON sp.mem_idx = sm.mem_idx
+        LEFT JOIN payment p ON p.pay_idx = (
+            SELECT MAX(p2.pay_idx)
+            FROM payment p2
+            WHERE p2.bid_idx = o.bid_idx
+        )
+        LEFT JOIN delivery d ON d.delivery_idx = (
+            SELECT MAX(d2.delivery_idx)
+            FROM delivery d2
+            WHERE d2.bid_idx = o.bid_idx
+        )
+        LEFT JOIN review r ON r.bid_idx = o.bid_idx
+            AND r.review_is_deleted = 'N'
+    </sql>
+
+    <select id="findAllByBuyerIdx" resultType="com.springbootstudy.bbs.dto.OrdersListDTO">
+        SELECT
+            <include refid="ordersListColumns" />,
+            'BUYER' AS userRole
+        <include refid="ordersListFrom" />
+        WHERE o.buyer_idx = #{buyerIdx}
+        ORDER BY o.order_regdate DESC
+    </select>
+
+    <select id="findAllBySellerIdx" resultType="com.springbootstudy.bbs.dto.OrdersListDTO">
+        SELECT
+            <include refid="ordersListColumns" />,
+            'SELLER' AS userRole
+        <include refid="ordersListFrom" />
+        WHERE o.seller_idx = #{sellerIdx}
+        ORDER BY o.order_regdate DESC
+    </select>
+
+    <select id="findAllByMemberIdx" resultType="com.springbootstudy.bbs.dto.OrdersListDTO">
+        SELECT
+            <include refid="ordersListColumns" />,
+            CASE
+                WHEN o.buyer_idx = #{memIdx} AND o.seller_idx = #{memIdx} THEN 'BOTH'
+                WHEN o.buyer_idx = #{memIdx} THEN 'BUYER'
+                ELSE 'SELLER'
+            END AS userRole
+        <include refid="ordersListFrom" />
+        WHERE o.buyer_idx = #{memIdx}
+           OR o.seller_idx = #{memIdx}
+        ORDER BY o.order_regdate DESC
+    </select>
+
+    <select id="findDetailByOrderIdxAndMember" resultType="com.springbootstudy.bbs.dto.OrdersListDTO">
+        SELECT
+            <include refid="ordersListColumns" />,
+            CASE
+                WHEN o.buyer_idx = #{memIdx} AND o.seller_idx = #{memIdx} THEN 'BOTH'
+                WHEN o.buyer_idx = #{memIdx} THEN 'BUYER'
+                ELSE 'SELLER'
+            END AS userRole
+        <include refid="ordersListFrom" />
+        WHERE o.order_idx = #{orderIdx}
+          AND (o.buyer_idx = #{memIdx} OR o.seller_idx = #{memIdx})
+        LIMIT 1
+    </select>
+
+</mapper>

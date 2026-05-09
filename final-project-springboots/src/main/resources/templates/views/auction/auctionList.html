@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/main_layout}">
+<head>
+<meta charset="UTF-8">
+<title>경매 리스트 - PickQ</title>
+</head>
+<body>
+	<th:block layout:fragment="content">
+
+		<div class="min-h-screen bg-white py-8">
+			<div class="mx-auto max-w-[1200px] px-4 sm:px-6">
+
+				<!-- 상단 헤더 -->
+				<header class="mb-4 py-3 px-3 sm:py-10">
+					<div
+						class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div>
+							<h1 class="text-2xl sm:text-3xl font-bold text-[#222222] mb-1">경매
+								요청</h1>
+							<p class="text-sm text-[#767676]">원하는 조건으로 경매를 등록해 보세요. 여러
+								판매자가 제안합니다</p>
+						</div>
+
+						<!-- 로그인 시: 경매 등록하기 -->
+						<div th:if="${session.loginUser != null}">
+							<button type="button"
+								class="inline-flex items-center gap-2 rounded-lg bg-[#7CBD00] px-4 py-2.5 text-m font-semibold text-white hover:bg-[#6BAD00] transition-colors"
+								th:onclick="|location.href='@{/auctions/new}'|">
+								<i class="bi bi-plus-lg text-[16px]"></i> <span>경매 등록하기</span>
+							</button>
+						</div>
+					</div>
+				</header>
+
+				<div class="flex flex-col gap-6 lg:flex-row lg:gap-8">
+
+					<!-- 왼쪽: 카테고리 사이드바 -->
+					<aside class="w-full lg:w-60 lg:flex-shrink-0">
+						<div
+							class="sticky top-24 bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+							<!-- Mobile header -->
+							<button id="auction-sidebar-toggle"
+								class="lg:hidden w-full flex items-center justify-between px-4 py-3 border-b border-gray-100 text-sm font-semibold text-[#222222]"
+								aria-expanded="false" aria-controls="auction-sidebar-body"
+								onclick="toggleAuctionSidebarAccordion()">
+								<span class="flex items-center gap-2"> <span>카테고리</span>
+									<span id="auction-sidebar-current"
+									class="text-xs font-normal text-[#767676]"
+									th:text="${selectedCategory != null ? '· 선택됨' : '· 전체'}"></span>
+								</span> <i
+									class="bi bi-chevron-down text-[#767676] transition-transform duration-300"
+									id="auction-sidebar-icon"></i>
+							</button>
+
+							<!-- Desktop header -->
+							<div class="hidden lg:block px-4 py-3 border-b border-gray-100">
+								<h3 class="text-sm font-semibold text-[#222222]">카테고리</h3>
+							</div>
+
+							<!-- Body -->
+							<nav id="auction-sidebar-body"
+								class="overflow-hidden transition-[max-height] duration-300 ease-in-out max-h-0 lg:max-h-none lg:overflow-visible">
+								<div class="px-2 py-2 text-sm">
+									<a
+										th:href="@{/auctions(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == null}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										전체 </a> <a
+										th:href="@{/auctions/category/ball(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'ball'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										공/볼 </a> <a
+										th:href="@{/auctions/category/racket(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'racket'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										라켓/배트/클럽 </a> <a
+										th:href="@{/auctions/category/protective(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'protective'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										보호대/보호장비 </a> <a
+										th:href="@{/auctions/category/apparel(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'apparel'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										의류/신발 </a> <a
+										th:href="@{/auctions/category/fitness(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'fitness'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										헬스/홈트 용품 </a> <a
+										th:href="@{/auctions/category/outdoor(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'outdoor'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										아웃도어/캠핑 </a> <a
+										th:href="@{/auctions/category/swim(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'swim'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										수영/수상 스포츠 </a> <a
+										th:href="@{/auctions/category/accessory(sortBy=${sortBy}, statusFilter=${statusFilter})}"
+										class="block rounded-lg px-4 py-3 text-sm font-semibold leading-5 transition-colors"
+										th:classappend="${selectedCategory == 'accessory'}
+                           ? ' bg-gray-100 text-[#222222] font-semibold'
+                           : ' text-[#767676] hover:bg-gray-50 hover:text-[#222222]'">
+										액세서리/잡화 </a>
+								</div>
+							</nav>
+						</div>
+					</aside>
+
+					<!-- 오른쪽: 컨텐츠 영역 -->
+					<main class="flex-1">
+
+						<!-- 검색 폼 -->
+						<div class="mb-6">
+							<form
+								th:action="${selectedCategory != null} ? @{/auctions/category/{categoryCode}(categoryCode=${selectedCategory})} : @{/auctions}"
+								method="get" class="flex items-center gap-2">
+								<input type="hidden" name="sortBy" th:value="${sortBy}">
+								<input type="hidden" name="statusFilter"
+									th:value="${statusFilter}">
+
+								<div class="relative flex-1">
+									<i
+										class="bi bi-search text-[#767676] text-sm absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+									<input type="text" name="keyword" th:value="${keyword}"
+										placeholder="관심있는 키워드를 검색해보세요."
+										class="h-10 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-3 text-sm text-[#222222] focus:outline-none focus:ring-1 focus:ring-gray-800">
+								</div>
+
+								<button type="submit"
+									class="h-10 px-5 rounded-lg bg-[#222222] text-[#FFFFFF] text-sm font-semibold hover:bg-[#444444] transition-colors whitespace-nowrap">
+									검색</button>
+							</form>
+						</div>
+
+						<!-- 상단 카운트 / 정렬 버튼 -->
+						<div class="mb-5 pb-3 border-b border-gray-100">
+
+							<!-- 1행: 총 개수(왼쪽) + 상태 필터(오른쪽) -->
+							<div
+								class="flex flex-wrap items-center justify-between gap-2 mb-2">
+								<span class="text-xs sm:text-sm text-[#767676]"> 총 <span
+									class="font-semibold text-[#222222]"
+									th:text="${#lists.size(auctionList)}">0</span>개
+								</span>
+								<div class="flex items-center gap-2">
+									<a
+										th:href="${selectedCategory != null}
+						                        ? @{/auctions/category/{cat}(cat=${selectedCategory}, sortBy=${sortBy}, statusFilter='open')}
+						                        : @{/auctions(sortBy=${sortBy}, statusFilter='open')}"
+										class="inline-flex items-center rounded-full px-3 py-1 text-xs sm:text-sm font-medium border transition-colors"
+										th:classappend="${statusFilter == 'open' or statusFilter == null}
+						                               ? 'bg-[#222222] text-white border-[#222222]'
+						                               : 'bg-white text-[#767676] border-gray-200 hover:border-[#222222] hover:text-[#222222]'">
+										진행중 </a> <a
+										th:href="${selectedCategory != null}
+						                        ? @{/auctions/category/{cat}(cat=${selectedCategory}, sortBy=${sortBy}, statusFilter='closed')}
+						                        : @{/auctions(sortBy=${sortBy}, statusFilter='closed')}"
+										class="inline-flex items-center rounded-full px-3 py-1 text-xs sm:text-sm font-medium border transition-colors"
+										th:classappend="${statusFilter == 'closed'}
+						                               ? 'bg-[#222222] text-white border-[#222222]'
+						                               : 'bg-white text-[#767676] border-gray-200 hover:border-[#222222] hover:text-[#222222]'">
+										마감된 경매 </a>
+								</div>
+							</div>
+
+							<!-- 2행: 정렬(오른쪽 정렬) -->
+							<div
+								class="flex items-center justify-end gap-1 text-xs sm:text-sm">
+								<a
+									th:href="${selectedCategory != null}
+						                    ? @{/auctions/category/{cat}(cat=${selectedCategory}, sortBy='latest', keyword=${keyword}, statusFilter=${statusFilter})}
+						                    : @{/auctions(sortBy='latest', keyword=${keyword}, statusFilter=${statusFilter})}"
+									class="px-2.5 py-1 rounded transition-colors"
+									th:classappend="${sortBy == 'latest' or sortBy == null}
+						                           ? 'bg-gray-100 font-semibold text-[#222222]'
+						                           : 'text-[#767676] hover:text-[#222222]'">
+									📅 최신순 </a> <a
+									th:href="${selectedCategory != null}
+						                    ? @{/auctions/category/{cat}(cat=${selectedCategory}, sortBy='views', keyword=${keyword}, statusFilter=${statusFilter})}
+						                    : @{/auctions(sortBy='views', keyword=${keyword}, statusFilter=${statusFilter})}"
+									class="px-2.5 py-1 rounded transition-colors"
+									th:classappend="${sortBy == 'views'}
+						                           ? 'bg-gray-100 font-semibold text-[#222222]'
+						                           : 'text-[#767676] hover:text-[#222222]'">
+									👀 조회수순 </a> <a
+									th:href="${selectedCategory != null}
+						                    ? @{/auctions/category/{cat}(cat=${selectedCategory}, sortBy='deadline', keyword=${keyword}, statusFilter=${statusFilter})}
+						                    : @{/auctions(sortBy='deadline', keyword=${keyword}, statusFilter=${statusFilter})}"
+									class="px-2.5 py-1 rounded transition-colors"
+									th:classappend="${sortBy == 'deadline'}
+						                           ? 'bg-gray-100 font-semibold text-[#222222]'
+						                           : 'text-[#767676] hover:text-[#222222]'">
+									⏰ 마감임박순 </a>
+							</div>
+
+						</div>
+
+						<!-- 토스트 메시지 -->
+						<span th:if="${successMessage}" id="toast-success"
+							th:data-msg="${successMessage}" style="display: none;"></span> <span
+							th:if="${errorMessage}" id="toast-error"
+							th:data-msg="${errorMessage}" style="display: none;"></span>
+
+						<!-- 경매 카드 그리드 -->
+						<div th:if="${!#lists.isEmpty(auctionList)}"
+							class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+
+							<div th:each="item, st : ${auctionList}" class="bg-white"
+								th:classappend="${item.auctionStatusIdx != 1} ? ' opacity-70' : ''">
+
+								<a th:href="@{'/auctions/' + ${item.auctionIdx}}"
+									class="block group"> <!-- 썸네일 -->
+									<div
+										class="relative aspect-square mb-3 overflow-hidden bg-gray-100">
+										<img
+											th:src="${item.auctionThumbnailImg != null and item.auctionThumbnailImg != '' ? item.auctionThumbnailImg : '/images/auction/auction_default.png'}"
+											alt="썸네일"
+											class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+
+										<!-- 상태 배지 -->
+										<div class="absolute left-2 top-2">
+											<span th:if="${item.auctionStatusIdx == 1}"
+												class="inline-flex items-center rounded-full bg-[#222222] px-2 py-0.5 text-[11px] font-medium text-white">
+												진행중 </span> <span th:if="${item.auctionStatusIdx == 2}"
+												class="inline-flex items-center rounded-full bg-gray-800 px-2 py-0.5 text-[11px] font-medium text-white">
+												결정대기 </span> <span th:if="${item.auctionStatusIdx == 3}"
+												class="inline-flex items-center rounded-full bg-gray-500 px-2 py-0.5 text-[11px] font-medium text-white">
+												마감 </span> <span th:if="${item.auctionStatusIdx == 4}"
+												class="inline-flex items-center rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-medium text-white">
+												유찰 </span> <span th:if="${item.auctionStatusIdx == 5}"
+												class="inline-flex items-center rounded-full bg-gray-400 px-2 py-0.5 text-[11px] font-medium text-white">
+												취소 </span>
+										</div>
+									</div> <!-- 텍스트 영역 -->
+									<div>
+										<!-- 카테고리 -->
+										<p class="text-xs text-[#767676] mb-1"
+											th:text="${item.itemCategoryName}">카테고리</p>
+
+										<!-- 제목 -->
+										<h3
+											class="text-sm font-medium text-[#222222] mb-1 line-clamp-1"
+											th:text="${item.auctionTitle}">경매 제목</h3>
+
+										<!-- 입찰 수 / 남은 시간 -->
+										<div
+											class="flex items-center gap-2 text-xs text-[#767676] mt-2 mb-2">
+											<span th:text="'제안 ' + ${item.bidCount} + '건'">제안 0건</span> <span>•</span>
+											<span class="timer-display"
+												th:data-status="${item.auctionStatusIdx}"
+												th:data-end="${item.auctionEndAt}"
+												th:data-deadline="${item.auctionDecisionDeadline}">
+												[[${item.timeDisplay}]] </span>
+										</div>
+
+										<!-- 가격 정보 -->
+										<div class="space-y-1">
+											<div class="flex items-center justify-between">
+												<span class="text-xs text-[#767676]">희망 예산</span> <span
+													class="text-base font-bold text-[#222222]"
+													th:text="${#numbers.formatInteger(item.auctionTargetPrice, 0, 'COMMA') + '원'}">
+													0원 </span>
+											</div>
+
+											<div class="flex items-center justify-between">
+												<span class="text-xs text-[#767676]">최저 제안가</span> <span
+													class="text-sm font-semibold"
+													th:classappend="${item.minBidPrice == 0} ? ' text-[#999999]' : ' text-[#222222]'"
+													th:text="${item.minBidPrice == 0 ? '제안 없음' : #numbers.formatInteger(item.minBidPrice, 0, 'COMMA') + '원'}">
+													제안 없음 </span>
+											</div>
+										</div>
+									</div>
+								</a>
+							</div>
+						</div>
+						
+
+						<!-- 빈 목록 -->
+						<div th:if="${#lists.isEmpty(auctionList)}"
+							class="py-20 text-center text-sm text-[#999999]">조회된 경매
+							데이터가 없습니다.</div>
+
+					</main>
+				</div>
+			</div>
+		</div>
+
+		<script src="/js/auctionList.js"></script>
+		<script>
+			function toggleAuctionSidebarAccordion() {
+				var toggle = document.getElementById('auction-sidebar-toggle');
+				var body = document.getElementById('auction-sidebar-body');
+				var icon = document.getElementById('auction-sidebar-icon');
+
+				if (!toggle || !body)
+					return;
+
+				var isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+				if (isExpanded) {
+					// 닫기: 현재 높이에서 0으로
+					body.style.maxHeight = body.scrollHeight + 'px';
+					requestAnimationFrame(function() {
+						body.style.maxHeight = '0px';
+					});
+					toggle.setAttribute('aria-expanded', 'false');
+					if (icon)
+						icon.style.transform = 'rotate(0deg)';
+				} else {
+					// 열기: 0에서 scrollHeight까지, 끝나면 auto 대신 none
+					body.style.maxHeight = body.scrollHeight + 'px';
+					body.addEventListener('transitionend', function handler() {
+						body.style.maxHeight = 'none';
+						body.removeEventListener('transitionend', handler);
+					});
+					toggle.setAttribute('aria-expanded', 'true');
+					if (icon)
+						icon.style.transform = 'rotate(180deg)';
+				}
+			}
+
+			document.addEventListener('DOMContentLoaded', function() {
+				var toggle = document.getElementById('auction-sidebar-toggle');
+				var body = document.getElementById('auction-sidebar-body');
+				if (!toggle || !body)
+					return;
+
+				if (window.innerWidth < 1024) {
+					body.style.maxHeight = '0px';
+					toggle.setAttribute('aria-expanded', 'false');
+				} else {
+					// PC에서는 항상 펼쳐진 상태
+					body.style.maxHeight = 'none';
+					toggle.setAttribute('aria-expanded', 'true');
+				}
+			});
+		</script>
+	</th:block>
+</body>
+</html>

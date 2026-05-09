@@ -1,0 +1,100 @@
+[DB 설계 분석 - all_schema.sql 기준]
+DB명: final
+엔진/문자셋: InnoDB / utf8mb4
+
+0) 설계 개요
+- 코드 테이블(권한/등급/상태/카테고리/게시판 타입)을 분리해 운영 데이터의 일관성을 확보.
+- 회원(member)을 중심으로 역경매(auction)-입찰(bid)-거래(orders/payment/delivery)-리뷰(review)가 이어지는 구조.
+- 커뮤니티(board/reply), 채팅(chatroom/chatmessage), 알림(notification)을 별도 기능군으로 분리.
+- 다수 테이블에서 soft delete 플래그(Y/N) + 삭제일시를 사용.
+
+1) 회원 관련
+- role: 권한 코드(USER/ADMIN)
+- grade: 신용 등급 코드(normal/bronze/silver/gold/vip)
+- member: 회원 마스터(로그인, 연락처, 권한, 신용점수, 패널티, 로그인 타입)
+- member_profile: 회원 프로필(닉네임/소개/이미지), member와 1:1(PK=FK)
+- member_addr: 회원 배송지, member와 1:N
+- member_penalty: 패널티 이력, member와 1:N
+
+관계/역할
+- member.mem_role_idx -> role.role_idx
+- member.mem_grade_idx -> grade.grade_idx
+- member_profile.mem_idx -> member.mem_idx (ON DELETE CASCADE)
+- member_addr.mem_idx -> member.mem_idx (ON DELETE CASCADE)
+- member_penalty.mem_idx -> member.mem_idx (ON DELETE CASCADE)
+- 회원 도메인은 인증/인가, 신용도/패널티 정책, 주소/프로필 확장의 중심축 역할.
+
+2) 옥션(역경매) 관련
+- item_category: 상품 카테고리 코드
+- item: 실제 제안 상품 정보(브랜드/상태/이미지)
+- auction_status: 경매 상태 코드(open/decide/closed/failed/canceled/deleted)
+- auction: 구매요청(역경매 본체)
+- bid_status: 입찰 상태 코드(normal/won/lost/canceled/deleted)
+- bid: 판매자 입찰 제안
+
+관계/역할
+- auction.buyer_idx -> member.mem_idx
+- auction.item_category_idx -> item_category.item_category_idx
+- auction.auction_status_idx -> auction_status.auction_status_idx
+- bid.auction_idx -> auction.auction_idx
+- bid.bidder_idx -> member.mem_idx
+- bid.item_idx -> item.item_idx
+- bid.bid_status_idx -> bid_status.bid_status_idx
+- auction(1) : bid(N) 구조로 역경매 핵심 플로우를 형성.
+
+3) 거래/정산/리뷰 관련
+- orders: 거래 마스터(경매/입찰/구매자/판매자/거래상태 타임라인)
+- payment: 결제 상세(결제키, 주문ID, 결제수단/상태, 배송지 스냅샷)
+- delivery: 배송 정보(택배사, 송장, 상태)
+- review: 거래 리뷰(구매자 -> 판매자), bid 단위 unique
+
+관계/역할
+- orders.auction_idx -> auction.auction_idx
+- orders.bid_idx -> bid.bid_idx (UNIQUE: bid당 1거래)
+- orders.buyer_idx -> member.mem_idx
+- orders.seller_idx -> member.mem_idx
+- payment.bid_idx -> bid.bid_idx
+- payment.mem_idx -> member.mem_idx
+- delivery.pay_idx -> payment.pay_idx
+- delivery.bid_idx -> bid.bid_idx
+- review.buyer_idx / bidder_idx -> member.mem_idx
+- review.auction_idx -> auction.auction_idx
+- review.bid_idx -> bid.bid_idx (UNIQUE: 거래당 리뷰 1개)
+- 거래 도메인은 낙찰 후 결제-배송-구매확정-리뷰까지 라이프사이클을 관리.
+
+4) 커뮤니티 관련
+- board_type: 게시판 타입/권한 정책(board_min_role)
+- board: 게시글 마스터
+- reply: 댓글/대댓글(reply_ref/reply_step/reply_depth)
+
+관계/역할
+- board.mem_idx -> member.mem_idx
+- board.board_type_idx -> board_type.board_type_idx
+- reply.board_idx -> board.board_idx
+- reply.mem_idx -> member.mem_idx
+- 게시판 타입 코드 기반으로 다중 카테고리 커뮤니티를 운영.
+
+5) 채팅/알림 관련
+- chatroom: 경매 단위 1:1 채팅방(auction, buyer, bidder 조합 unique)
+- chatmessage: 채팅 메시지(읽음 여부 포함)
+- notification: 알림 이벤트 저장소(수신자/발신자/관련 엔티티 FK 컬럼 보유)
+
+관계/역할
+- chatroom.auction_idx -> auction.auction_idx
+- chatroom.buyer_idx / bidder_idx -> member.mem_idx
+- chatmessage.chatroom_idx -> chatroom.chatroom_idx
+- chatmessage.sender_idx -> member.mem_idx
+- notification은 관련 FK 컬럼(auction/bid/board/reply)을 두었으나 FK 제약은 주석 처리 상태.
+- 실시간 기능(WebSocket/STOMP)과 결합해 사용자 반응성을 높이는 구조.
+
+6) 데이터 무결성/운영 관점 포인트
+- CHECK 제약으로 상태값(Y/N, enum성 status) 통제.
+- UNIQUE 제약: member.mem_id, payment_key, order_id, orders.bid_idx, review.bid_idx, chatroom(auction,buyer,bidder).
+- ON DELETE CASCADE/SET NULL을 기능별로 다르게 적용해 참조 무결성과 이력 보존의 균형을 맞춤.
+
+7) 기능군별 테이블 묶음 요약
+- 회원관리: role, grade, member, member_profile, member_addr, member_penalty
+- 옥션/입찰: item_category, item, auction_status, auction, bid_status, bid
+- 거래/결제/배송/리뷰: orders, payment, delivery, review
+- 커뮤니티: board_type, board, reply
+- 실시간 커뮤니케이션: chatroom, chatmessage, notification

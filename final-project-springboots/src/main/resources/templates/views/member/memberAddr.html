@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>배송지 관리 - PickQ</title>
+<script
+	src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+<script type="text/javascript">
+	// 주소 삭제
+	function deleteAddr(addrIdx) {
+		if (confirm("주소를 삭제하시겠습니까?")) {
+			document.getElementById("deleteAddrIdx").value = addrIdx;
+
+			let form = document.getElementById("memberAddr");
+			form.action = "/mypage/addresses/delete";
+			form.method = "post";
+
+			form.submit();
+		}
+	}
+	
+	// 대표배송지 버튼 post로 받기 위해 추가
+	// 버튼에 form 넣어도 되지만 form 안에 form이 들어가는 구조라 js 추가할게요!!
+	function setPrimary(addrIdx) {
+	    let form = document.getElementById("memberAddr");
+
+	    form.action = "/mypage/addresses/primary";
+	    form.method = "post";
+
+	    document.getElementById("deleteAddrIdx").value = addrIdx;
+
+	    form.submit();
+	}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+
+		<div class="space-y-6">
+
+			<!-- 제목 영역 -->
+			<div>
+				<h2 class="text-lg sm:text-xl font-bold text-[#222222]">배송지 관리</h2>
+				<p class="mt-1 text-xs sm:text-sm text-[#767676]">주문 시 사용할 배송지를
+					관리하세요</p>
+			</div>
+
+			<!-- 기존 form 유지 -->
+			<form action="/mypage/addresses/edit" id="memberAddr"
+				name="memberAddrForm">
+				<input type="hidden" name="addrIdx" id="deleteAddrIdx">
+			</form>
+
+			<!-- 배송지 리스트 있을 때 -->
+			<div th:if="${addrList != null and !#lists.isEmpty(addrList)}"
+				class="space-y-4">
+
+					<div th:each="addr : ${addrList}"
+						class="border border-gray-200 bg-white rounded-xl"
+						th:classappend="${addr.isPrimary == 'Y'} ? ' ring-2 ring-[#7CBD00]' : ''">
+						<!-- 카드 헤더 -->
+						<div class="px-6 py-4 border-b border-gray-100">
+							<div class="flex items-center justify-between">
+								<span th:if="${addr.isPrimary == 'Y'}"
+									class="inline-flex items-center px-2 py-1 rounded-full bg-[#7CBD00] text-white text-[11px] font-medium">
+									대표 배송지 </span>
+							</div>
+						</div>
+
+						<!-- 카드 내용 -->
+						<div class="px-6 py-4 space-y-3">
+							<div>
+								<div class="text-sm text-gray-500 mb-1">주소</div>
+								<div class="text-sm text-gray-900" th:text="${addr.memAddr}"></div>
+							</div>
+
+							<div>
+								<div class="text-sm text-gray-500 mb-1">연락처</div>
+								<div class="text-sm text-gray-900" th:text="${member.memTel}"></div>
+							</div>
+
+							<!-- 버튼 영역: 수정/삭제/대표 설정 -->
+							<div class="flex flex-wrap gap-2 pt-1">
+								<!-- 수정 (기존 edit 링크 유지) -->
+								<button type="button"
+									class="inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 text-xs sm:text-sm text-gray-700 hover:bg-gray-50"
+									th:onclick="|location.href='@{/mypage/addresses/edit(addrIdx=${addr.addrIdx})}'|">
+									수정</button>
+
+								<!-- 삭제 (기존 deleteAddr 호출 유지) -->
+								<button type="button"
+									class="inline-flex items-center px-3 py-1.5 rounded-md border border-red-300 text-xs sm:text-sm text-red-600 hover:bg-red-50"
+									th:onclick="|deleteAddr(${addr.addrIdx})|">삭제</button>
+
+								<!-- 대표 배송지 설정: isPrimary가 false일 때만 노출 처리하려면 if 추가 -->
+								<button type="button" th:if="${addr.isPrimary != 'Y'}"
+									th:onclick="|setPrimary(${addr.addrIdx})|"
+									class="inline-flex items-center px-3 py-1.5 rounded-md border border-[#7CBD00] text-xs sm:text-sm text-[#7CBD00] hover:bg-[#F4FCE3]">
+									대표 배송지로 설정</button> 
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			<!-- 배송지 없을 때 -->
+			<div th:if="${addrList == null or #lists.isEmpty(addrList)}"
+				class="border border-gray-200 bg-white rounded-xl">
+				<div class="px-6 py-6 text-center text-sm text-gray-500">등록된
+					배송지가 없습니다.</div>
+			</div>
+
+			<!-- 새 배송지 추가 버튼 -->
+			<div>
+				<button type="button"
+					class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-[#7CBD00] text-white rounded-md text-sm font-semibold hover:bg-[#6BAD00]"
+					th:onclick="|location.href='@{/mypage/addresses/new}'|">새
+					배송지 추가</button>
+			</div>
+
+		</div>
+
+	</div>
+</body>
+</html>

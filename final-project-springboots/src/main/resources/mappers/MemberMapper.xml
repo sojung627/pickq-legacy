@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--   
+   마이바티스 참고 사이트
+     - http://blog.mybatis.org/
+     - http://www.mybatis.org/mybatis-3/ko/index.html
+     
+   @Mapper 애노테이션이 적용된 인터페이스와 맵퍼 XML파일은
+   namespace 속성으로 연결되기 때문에 맵퍼 XML의 namespace를
+   지정할 때 @Mapper 애노테이션이 적용된 맵퍼 인터페이스의
+   완전한 클래스 이름(패키지를 포함한 이름)을 지정하면 된다.   
+-->
+<mapper namespace="com.springbootstudy.bbs.mapper.MemberMapper" >
+   <!-- 나중에 추가로 늘려야 할 수 있음!!! -->
+	<select id="myPage">
+      SELECT * FROM member
+      WHERE mem_idx = #{memIdx} 
+   </select>
+
+   <!-- role에 기본값 주기 -->
+   <select id="findDefaultRoleIdx" resultType="long">
+       SELECT role_idx 
+       FROM role 
+       ORDER BY role_idx ASC 
+       LIMIT 1
+   </select>
+
+   <!-- 아이디 중복 체크 -->
+    <select id="countByMemId" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE mem_id = #{memId}
+    </select>
+
+    <!-- 회원가입 -->
+    <insert id="insertMember">
+    INSERT INTO member (
+        mem_id, mem_pwd, mem_name, mem_tel, mem_email,
+        mem_ip, mem_role_idx, mem_grade_idx
+    )
+    VALUES (
+        #{memId}, #{memPwd}, #{memName}, #{memTel}, #{memEmail},
+        #{memIp}, #{memRoleIdx}, #{memGradeIdx}
+    )
+   </insert>
+   
+   <!-- 로그인 -->
+
+   <!-- 아이디 존재 여부 -->
+    <select id="checkId" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE mem_id = #{memId}
+    </select>
+
+    <!-- 비밀번호 조회 -->
+    <select id="getPassword" parameterType="string" resultType="string">
+        SELECT mem_pwd
+        FROM member
+        WHERE mem_id = #{memId}
+    </select>
+
+    <!-- 회원 정보 조회 -->
+    <select id="getMemberVO" parameterType="string" resultType="com.springbootstudy.bbs.domain.MemberVO">
+        SELECT *
+        FROM member
+        WHERE mem_id = #{memId}
+    </select>   
+    
+    <!-- 회원정보 수정창에서 비밀번호 재발급 --> 
+    <select id="selectPwdById" resultType="String">
+	    SELECT mem_pwd
+	    FROM member
+	    WHERE mem_id = #{memId}
+	</select>
+    
+    <!-- 탈퇴 -->
+    <update id="deleteMember" parameterType="string">
+	    UPDATE member
+	    SET mem_is_deleted = 'Y',
+	        mem_deldate = NOW()
+	    WHERE mem_id = #{memId}
+	</update>
+	
+	
+	<update id="update">
+        UPDATE member
+        SET mem_name = #{memName},
+            mem_email = #{memEmail},
+            mem_tel = #{memTel},
+            mem_bday = #{memBday},
+            mem_pwd = #{memPwd}
+        WHERE mem_id = #{memId}
+    </update>
+
+    <!-- 회원 정보 조회 -->
+    <select id="selectOneFromId" resultType="com.springbootstudy.bbs.domain.MemberVO">
+        SELECT *
+        FROM member
+        WHERE mem_id = #{memId}
+    </select>
+
+    <!-- 등급명 조회 -->
+    <select id="selectGradeNameByMemId" resultType="string">
+        SELECT g.grade_name
+        FROM member m
+        JOIN grade g ON m.mem_grade_idx = g.grade_idx
+        WHERE m.mem_id = #{memId}
+    </select>
+    
+    <!-- 비밀번호 재발급 시 아이디 + 전화번호 맞는 지 확인 -->
+ 	<select id="findByIdAndTel" resultType="com.springbootstudy.bbs.domain.MemberVO">
+	    SELECT *
+	    FROM member
+	    WHERE mem_id = #{memId}
+	    AND mem_tel = #{memTel}
+	</select>
+	
+	<!-- 새 비밀번호 변경 -->
+ 	<update id="updatePassword">
+	    UPDATE member
+	    SET mem_pwd = #{newPassword} 
+	    WHERE mem_id = #{memId}
+	</update>
+ 
+</mapper>	
+
+
+

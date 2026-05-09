@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>채팅 - PickQ</title>
+<link rel="stylesheet" th:href="@{/bootstrap/bootstrap.min.css}">
+</head>
+<body class="bg-[#f5f5f5]">
+	<div class="min-h-screen flex flex-col">
+
+		<!-- 상단 제목/닫기 -->
+		<header
+			class="flex items-center justify-between px-3 py-2 border-b bg-white">
+			<h1 class="text-sm font-semibold text-[#222222]">채팅방</h1>
+			<button type="button" class="text-xs text-[#767676]"
+				onclick="window.close();">닫기</button>
+		</header>
+
+		<main id="chatContainer" class="flex-grow-1 overflow-auto p-3 bg-light">
+
+			<!-- 대화가 없을 때 -->
+			<div id="emptyMessageBox" th:if="${#lists.isEmpty(messageList)}">
+				<p class="text-muted small mb-0">
+					아직 대화가 없습니다.<br>대화를 시작해보세요.
+				</p>
+			</div>
+
+			<!-- 메시지 리스트 -->
+			<div id="messageListWrap">
+				<div th:each="msg : ${messageList}"
+					th:classappend="${msg.senderIdx == session.loginUser.memIdx} ? ' text-end' : ' text-start'">
+
+					<div th:classappend="${msg.senderIdx == session.loginUser.memIdx} ? ' bg-dark text-white' : ' bg-white'"
+						class="d-inline-block px-2 py-1 my-1 rounded small">
+						<span th:text="${msg.messageContent}">메시지 내용</span>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<!-- 입력 폼 -->
+		<footer class="border-t bg-white px-2 py-2">
+			<form id="chatForm" th:action="@{|/chats/${chatroomIdx}/messages|}" method="post"
+				class="flex gap-2">
+				<input id="messageContent" type="text" name="messageContent"
+					class="flex-1 border rounded px-2 py-1 text-sm"
+					placeholder="메시지를 입력하세요" autocomplete="off">
+				<button type="submit"
+					class="px-3 py-1 rounded bg-[#222222] text-white text-xs">
+					전송</button>
+			</form>
+		</footer>
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		const chatroomIdx = /*[[${chatroomIdx}]]*/ 0;
+		const currentUserIdx = /*[[${session.loginUser.memIdx}]]*/ 0;
+
+		const chatContainer = document.getElementById('chatContainer');
+		const messageListWrap = document.getElementById('messageListWrap');
+		const emptyMessageBox = document.getElementById('emptyMessageBox');
+		const chatForm = document.getElementById('chatForm');
+		const messageInput = document.getElementById('messageContent');
+
+		let stompClient = null;
+		let websocketConnected = false;
+
+		function escapeHtml(text) {
+			const div = document.createElement('div');
+			div.textContent = text == null ? '' : String(text);
+			return div.innerHTML;
+		}
+
+		function scrollToBottom() {
+			chatContainer.scrollTop = chatContainer.scrollHeight;
+		}
+
+		function appendMessage(message) {
+			if (emptyMessageBox) {
+				emptyMessageBox.remove();
+			}
+
+			const isMine = Number(message.senderIdx) === Number(currentUserIdx);
+			const row = document.createElement('div');
+			row.className = isMine ? 'text-end' : 'text-start';
+
+			const bubble = document.createElement('div');
+			bubble.className = 'd-inline-block px-2 py-1 my-1 rounded small';
+			bubble.classList.add(isMine ? 'bg-dark' : 'bg-white');
+			if (isMine) {
+				bubble.classList.add('text-white');
+			}
+			bubble.innerHTML = escapeHtml(message.messageContent);
+
+			row.appendChild(bubble);
+			messageListWrap.appendChild(row);
+			scrollToBottom();
+		}
+
+		function connectWebSocket() {
+			const socket = new SockJS('/ws-chat');
+			stompClient = Stomp.over(socket);
+			stompClient.debug = null;
+
+			stompClient.connect({}, function() {
+				websocketConnected = true;
+				stompClient.subscribe('/topic/chatroom/' + chatroomIdx, function(frame) {
+					const message = JSON.parse(frame.body);
+					const data = JSON.parse(frame.body);
+					
+					// 내가 보낸 메시지가 아닐 때만 부모창에 토스트
+				    if (data.senderIdx !== myIdx && window.opener && !window.opener.closed) {
+				        try {
+				            window.opener.showChatToast(
+				                data.senderName || '상대방',
+				                data.messageContent || '',
+				                chatroomIdx
+				            );
+				        } catch(e) {}
+				    }
+					
+					appendMessage(message);
+				});
+			}, function() {
+				websocketConnected = false;
+			});
+		}
+
+		chatForm.addEventListener('submit', function(event) {
+			if (!websocketConnected || !stompClient || !stompClient.connected) {
+				return;
+			}
+
+			event.preventDefault();
+
+			const content = messageInput.value.trim();
+			if (!content) {
+				return;
+			}
+
+			stompClient.send('/app/chat/send', {}, JSON.stringify({
+				chatroomIdx: chatroomIdx,
+				senderIdx: currentUserIdx,
+				messageContent: content
+			}));
+
+			messageInput.value = '';
+			messageInput.focus();
+		});
+
+		document.addEventListener('DOMContentLoaded', function() {
+			scrollToBottom();
+			connectWebSocket();
+		});
+		/*]]>*/
+	</script>
+</body>
+</html>

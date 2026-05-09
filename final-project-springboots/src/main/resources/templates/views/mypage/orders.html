@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/mypage_layout}">
+<head>
+<meta charset="UTF-8">
+<title>나의 구매 내역 - PickQ</title>
+</head>
+<body>
+	<main layout:fragment="content">
+
+		<div
+			class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+			
+			<!-- 토스트 메시지 -->
+			<span th:if="${successMessage}" id="toast-success" th:data-msg="${successMessage}"></span>
+			<span th:if="${errorMessage}" id="toast-error" th:data-msg="${errorMessage}"></span>
+			
+			<!-- 헤더 -->
+			<div class="px-6 py-5 border-b border-gray-100">
+				<h2 class="text-lg sm:text-xl font-semibold text-[#222222]"
+					th:text="${pageTitle != null ? pageTitle : '나의 거래'}">나의 거래</h2>
+				<p class="mt-1 text-xs sm:text-sm text-[#767676]"
+					th:text="${pageDescription != null ? pageDescription : '발생한 거래의 결제/배송 상태를 확인할 수 있습니다.'}">
+					발생한 거래의 결제/배송 상태를 확인할 수 있습니다.</p>
+
+				<div class="mt-4 flex items-center gap-2 text-xs sm:text-sm">
+					<a th:href="@{/mypage/orders}"
+						th:classappend="${ordersView} == 'all' ? 'bg-[#222222] text-white border-[#222222]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+						class="px-3 py-1.5 rounded-md border transition-colors">전체</a>
+					<a th:href="@{/mypage/orders/buy}"
+						th:classappend="${ordersView} == 'buy' ? 'bg-[#222222] text-white border-[#222222]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+						class="px-3 py-1.5 rounded-md border transition-colors">구매</a>
+					<a th:href="@{/mypage/orders/sell}"
+						th:classappend="${ordersView} == 'sell' ? 'bg-[#222222] text-white border-[#222222]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+						class="px-3 py-1.5 rounded-md border transition-colors">판매</a>
+				</div>
+			</div>
+
+			<!-- 본문: 주문 카드 리스트 -->
+			<div class="px-4 py-4 sm:px-6 sm:py-5">
+
+				<!-- 비어있을 때 -->
+				<div th:if="${#lists.isEmpty(orders)}"
+					class="py-10 text-center text-sm text-gray-400 border border-dashed border-gray-200 rounded-lg">
+					<span th:text="${emptyMessage != null ? emptyMessage : '거래 내역이 없습니다.'}">거래 내역이 없습니다.</span>
+				</div>
+
+				<!-- 데이터 있을 때 -->
+				<div th:if="${!#lists.isEmpty(orders)}" class="space-y-3">
+
+					<div th:each="order : ${orders}"
+						class="cursor-pointer rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 sm:px-5 sm:py-4 hover:border-[#7CBD00] transition-colors"
+						th:onclick="|location.href='/mypage/orders/${order.orderIdx}'|">
+
+						<!-- 제목 + 상태 -->
+						<div class="mb-3 flex items-center justify-between gap-3">
+							<div>
+								<div class="text-sm font-semibold text-[#222222]" th:text="${order.auctionTitle}">프로 축구공 FIFA 공인구 구함</div>
+								<div class="mt-1" th:if="${order.itemName != null and !#strings.isEmpty(order.itemName)}">
+									<span class="inline-flex items-center rounded-full bg-[#F3FAE8] px-2.5 py-1 text-[11px] font-semibold text-[#4C7C00]"
+										th:text="${'낙찰 상품: ' + order.itemName}">낙찰 상품: 상품명</span>
+								</div>
+								<div class="mt-1 text-[11px] text-[#999999]" th:if="${order.userRole == 'BUYER'}">
+									판매자 <span th:text="${order.sellerMemIdMasked}">seller123</span>
+								</div>
+								<div class="mt-1 text-[11px] text-[#999999]" th:if="${order.userRole == 'SELLER'}">
+									구매자 <span th:text="${order.buyerMemIdMasked}">buyer123</span>
+								</div>
+								<div class="mt-1 text-[11px] text-[#999999]" th:if="${order.userRole == 'BOTH'}">
+									상대방 <span th:text="${order.sellerMemIdMasked}">user123</span>
+								</div>
+							</div>
+
+							<!-- 주문 상태 배지 -->
+							<div>
+								<!-- 예: 주문 상태 코드 기준으로 색상 분기 -->
+								<span
+									class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold"
+									th:classappend="
+                      ${order.orderStatusCode} == 'CREATED' ? ' bg-amber-50 text-amber-700' :
+                      (${order.orderStatusCode} == 'PAID' ? ' bg-[#E6F4D6] text-[#4C7C00]' :
+                      (${order.orderStatusCode} == 'SHIPPED' ? ' bg-blue-50 text-blue-700' :
+                      (${order.orderStatusCode} == 'CONFIRMED' ? ' bg-gray-100 text-gray-700' :
+                      ' bg-gray-100 text-gray-500'))) "
+									th:text="${order.orderStatusName}"> 결제대기 </span>
+							</div>
+						</div>
+
+						<!-- 정보 4칸 -->
+						<div
+							class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs sm:text-sm">
+							<div>
+								<div class="text-[#9ca3af]">결제 금액</div>
+								<div class="mt-0.5 font-semibold text-[#222222]"
+									th:text="${#numbers.formatInteger(order.orderAmount, 0, 'COMMA') + '원'}">
+									50,000원</div>
+							</div>
+							<div>
+								<div class="text-[#9ca3af]">결제 상태</div>
+								<div class="mt-0.5 font-semibold text-[#222222]"
+									th:text="${order.paymentStatusName}">결제대기</div>
+							</div>
+							<div>
+								<div class="text-[#9ca3af]">배송 상태</div>
+								<div class="mt-0.5 text-[#222222]"
+									th:text="${order.shippingStatusName}">배송전</div>
+							</div>
+							<div>
+								<div class="text-[#9ca3af]">택배사</div>
+								<div class="mt-0.5 text-[#222222]"
+									th:text="${order.courierCompany != null ? order.courierCompany : '-'}">-</div>
+							</div>
+							<div>
+								<div class="text-[#9ca3af]">운송장번호</div>
+								<div class="mt-0.5 text-[#222222]"
+									th:text="${order.trackingNumber != null ? order.trackingNumber : '-'}">-</div>
+							</div>
+							<div>
+								<div class="text-[#9ca3af]">주문일</div>
+								<div class="mt-0.5 text-[#222222]"
+									th:text="${#temporals.format(order.orderRegdate, 'yyyy-MM-dd')}">
+									2026-03-10</div>
+							</div>
+						</div>
+
+						<!-- 하단 버튼 영역 (옵션) -->
+						<div class="mt-3 flex justify-end gap-2">
+							<!-- 결제대기일 때만 결제하기 버튼 -->
+							<button type="button"
+								class="px-3 py-1.5 rounded-lg bg-[#7CBD00] text-white text-[11px] sm:text-xs font-semibold hover:bg-[#6AA500]"
+								th:if="${order.userRole == 'BUYER' and order.orderStatusCode == 'CREATED'}"
+								th:onclick="|event.stopPropagation(); location.href='/payment/pay?auctionIdx=${order.auctionIdx}'|">
+								결제하기</button>
+
+							<!-- 판매자 + 결제완료 시 배송시작 안내 -->
+							<button type="button"
+								th:if="${order.userRole == 'SELLER' and order.orderStatusCode == 'PAID'}"
+								class="px-3 py-1.5 rounded-lg bg-[#222222] text-white text-[11px] sm:text-xs font-semibold hover:bg-[#444444]"
+								th:onclick="|event.stopPropagation(); location.href='/mypage/sales'|">
+								배송시작</button>
+
+							<!-- 배송중일 때만 구매확정 버튼 -->
+							<form class="m-0"
+								th:if="${order.userRole == 'BUYER' and order.shippingStatusCode == 'SHIPPING'}"
+								th:action="@{/mypage/orders/{orderIdx}/confirm(orderIdx=${order.orderIdx})}"
+								method="post"
+								onclick="event.stopPropagation();">
+								<button type="submit"
+									class="px-3 py-1.5 rounded-lg bg-[#7CBD00] text-white text-[11px] sm:text-xs font-semibold hover:bg-[#6AA500]">
+									구매확정</button>
+							</form>
+
+							<a th:if="${order.userRole == 'BUYER' and order.orderStatusCode == 'CONFIRMED' and order.reviewIdx == null}"
+								th:href="@{/mypage/reviews/reviewWrite(auctionIdx=${order.auctionIdx}, bidIdx=${order.bidIdx}, bidderIdx=${order.sellerIdx})}"
+								class="px-3 py-1.5 rounded-lg bg-[#222222] text-white text-[11px] sm:text-xs font-semibold hover:bg-[#444444]"
+								onclick="event.stopPropagation();">
+								리뷰 작성하기</a>
+
+							<span th:if="${order.userRole == 'BUYER' and order.orderStatusCode == 'CONFIRMED' and order.reviewIdx != null}"
+								class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-[11px] sm:text-xs font-semibold">
+								리뷰 작성 완료</span>
+
+							<!-- 항상 노출되는 상세보기 (원하면 생략 가능) -->
+							<button type="button"
+								class="px-3 py-1.5 rounded-lg border border-gray-200 text-[11px] sm:text-xs text-gray-700 bg-white hover:bg-gray-50"
+								th:onclick="|event.stopPropagation(); location.href='/mypage/orders/${order.orderIdx}'|">
+								상세보기</button>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</main>
+</body>
+</html>

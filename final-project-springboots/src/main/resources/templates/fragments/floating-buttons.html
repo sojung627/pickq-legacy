@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+	<div th:fragment="floating-buttons">
+		<div id="chat-context"
+			th:attr="data-login=${session.loginUser != null ? 'Y' : 'N'},data-login-mem-idx=${session.loginUser != null ? session.loginUser.memIdx : 0}"></div>
+
+		<!-- 우하단 플로팅 버튼 영역 -->
+		<div class="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
+			<!-- 채팅 버튼 -->
+			<button id="chatFloatingButton" type="button"
+				class="relative w-12 h-12 rounded-full bg-white shadow-md shadow-gray-300 flex items-center justify-center hover:shadow-lg transition">
+				<i data-feather="message-circle" class="w-5 h-5 text-gray-700"></i>
+				<span id="chatUnreadBadge"
+					class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-[10px] text-white rounded-full flex items-center justify-center">0</span>
+			</button>
+
+			<!-- 페이지 위/아래 버튼 그룹 -->
+			<div class="flex flex-col gap-2">
+				<button type="button" id="scrollTopBtn"
+					class="w-10 h-10 rounded-full bg-white shadow-md shadow-gray-300 flex items-center justify-center hover:shadow-lg transition disabled:opacity-40 disabled:hover:shadow-md"
+					onclick="scrollToTop()">
+					<i data-feather="chevron-up" class="w-4 h-4 text-gray-700"></i>
+				</button>
+
+				<button type="button" id="scrollBottomBtn"
+					class="w-10 h-10 rounded-full bg-white shadow-md shadow-gray-300 flex items-center justify-center hover:shadow-lg transition disabled:opacity-40 disabled:hover:shadow-md"
+					onclick="scrollToBottom()">
+					<i data-feather="chevron-down" class="w-4 h-4 text-gray-700"></i>
+				</button>
+			</div>
+		</div>
+
+		<!-- 데스크탑용 채팅 뷰 (md 이상) -->
+		<div class="hidden md:block" th:replace="~{fragments/chat/chat-desktop :: chat-desktop-view}"></div>
+
+		<!-- 모바일용 채팅 뷰 (md 미만) -->
+		<div class="block md:hidden" th:replace="~{fragments/chat/chat-mobile :: chat-mobile-view}"></div>
+	</div>
+
+</body>
+</html>

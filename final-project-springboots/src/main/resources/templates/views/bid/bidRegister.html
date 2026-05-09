@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/main_layout}">
+<head>
+<meta charset="UTF-8">
+<title th:text="|입찰 등록 - ${detail.auctionTitle}|">입찰 등록</title>
+</head>
+<body>
+	<th:block layout:fragment="content">
+
+		<div class="min-h-[calc(100vh-200px)] bg-[#ffffff]" id="auction-page-root"
+			th:attr="data-auction-idx=${detail.auctionIdx},data-page-type='bid-form'">
+			<div class="mx-auto max-w-7xl px-4 py-6">
+
+				<!-- Breadcrumb -->
+				<div
+					class="mb-4 flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+					<a th:href="@{/}" class="hover:text-[#7CBD00]">홈</a> <span>/</span>
+					<a th:href="@{/auctions}" class="hover:text-[#7CBD00]">경매</a> <span>/</span>
+					<a th:href="@{/auctions}" class="hover:text-[#7CBD00]"
+						th:text="${detail.itemCategoryName}">카테고리</a> <span>/</span> <a
+						th:href="@{/auctions/{id}(id=${detail.auctionIdx})}"
+						class="hover:text-[#7CBD00]"> 경매 상세 </a> <span>/</span> <span
+						class="text-gray-900">입찰하기</span>
+				</div>
+
+				<!-- 2-Column Layout -->
+				<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+					<!-- LEFT: 경매 정보 -->
+					<div class="flex flex-col gap-4">
+						<div
+							class="bg-white border border-gray-200 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
+							<div class="p-6 sm:p-8">
+
+								<div class="flex flex-col md:flex-row gap-6 mb-6">
+
+									<!-- 썸네일 + 채팅 버튼 -->
+									<div class="w-full md:w-48 flex-shrink-0">
+										<div
+											class="w-full md:w-48 h-48 mb-3 bg-gray-100 rounded-lg overflow-hidden">
+											<img
+												th:src="${detail.auctionThumbnailImg != null and detail.auctionThumbnailImg != ''}
+                               ? @{${detail.auctionThumbnailImg}}
+                               : @{/images/auction/auction_default.png}"
+												th:alt="${detail.auctionTitle}"
+												class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity">
+										</div>
+
+									</div>
+
+									<!-- 헤더 정보 -->
+									<div class="flex-1 flex flex-col">
+
+										<!-- 상태 배지 + 타이머 -->
+										<div class="mb-6">
+											<div class="flex items-center justify-between mb-3">
+												<div class="space-x-1">
+													<span
+														class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium text-white bg-success"
+														th:if="${detail.auctionStatusIdx == 1}">진행중</span> <span
+														class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium text-white bg-primary"
+														th:if="${detail.auctionStatusIdx == 2}">결정대기중</span> <span
+														class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium text-white bg-secondary"
+														th:if="${detail.auctionStatusIdx == 3}">마감</span> <span
+														class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium text-white bg-danger"
+														th:if="${detail.auctionStatusIdx == 4}">유찰</span> <span
+														class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium text-white bg-dark"
+														th:if="${detail.auctionStatusIdx == 5 or detail.auctionStatusIdx == 6}">종료</span>
+												</div>
+												<span id="realtime-timer"
+													class="text-xs sm:text-sm font-semibold text-gray-600"
+													th:data-status="${detail.auctionStatusIdx}"
+													th:data-end="${detail.auctionEndAt}"
+													th:data-deadline="${detail.auctionDecisionDeadline}">
+													[[${detail.timeDisplay}]] </span>
+											</div>
+
+											<h1 class="text-xl sm:text-2xl font-bold text-[#222222] mb-2"
+												th:text="${detail.auctionTitle}">경매 제목</h1>
+
+											<div
+												class="text-right text-[11px] sm:text-xs text-gray-500 space-y-1">
+												<span class="block">입찰 마감:
+													[[${#temporals.format(detail.auctionEndAt, 'yyyy-MM-dd
+													HH:mm')}]]</span> <span class="block">결정 마감:
+													[[${#temporals.format(detail.auctionDecisionDeadline,
+													'yyyy-MM-dd HH:mm')}]]</span>
+											</div>
+										</div>
+
+										<!-- 가격 정보 -->
+										<div class="mt-auto text-right space-y-2">
+											<div>
+												<div class="text-xs sm:text-sm text-gray-600">희망 예산</div>
+												<div class="text-2xl sm:text-3xl font-bold text-gray-900">
+													[[${#numbers.formatInteger(detail.auctionTargetPrice, 0,
+													'COMMA')}]]원</div>
+											</div>
+											<div>
+												<div class="text-xs sm:text-sm text-gray-600">현재 최저가</div>
+												<div class="text-2xl sm:text-3xl font-bold text-blue-600">
+													<span
+														th:text="${detail.minBidPrice == 0 ? '-' : #numbers.formatInteger(detail.minBidPrice, 0, 'COMMA') + '원'}"></span>
+												</div>
+											</div>
+										</div>
+
+									</div>
+								</div>
+
+								<!-- 상세 설명 -->
+								<div
+									class="border border-gray-200 rounded-lg p-4 sm:p-6 bg-gray-50">
+									<h3
+										class="text-base sm:text-lg font-bold text-[#222222] mb-3 sm:mb-4">
+										구매 요청 상세</h3>
+									<p
+										class="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-line"
+										th:text="${detail.auctionDesc}">상세 설명</p>
+								</div>
+
+								<!-- 상태 안내 -->
+								<div th:if="${detail.auctionStatusIdx != 1}"
+									class="mt-3 p-3 border border-gray-200 rounded-md text-xs sm:text-sm text-gray-500 text-center bg-white">
+									<span th:if="${detail.auctionStatusIdx == 2}">⏳ 결정 대기중인
+										경매입니다.</span> <span th:if="${detail.auctionStatusIdx == 3}">⛔
+										마감된 경매입니다.</span> <span th:if="${detail.auctionStatusIdx == 4}">😢
+										유찰된 경매입니다.</span> <span th:if="${detail.auctionStatusIdx == 5}">❌
+										취소된 경매입니다.</span> <span th:if="${detail.auctionStatusIdx == 6}">❌
+										삭제된 경매입니다.</span>
+								</div>
+
+								<!-- 뒤로가기 버튼 -->
+								<button type="button"
+									class="mt-4 inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-300 text-xs sm:text-sm text-gray-700 hover:bg-gray-50"
+									th:onclick="|location.href='/auctions/${detail.auctionIdx}'|">
+									<i class="bi bi-arrow-left-short text-[16px]"></i> 경매 상세로
+								</button>
+
+							</div>
+						</div>
+					</div>
+					<!-- /LEFT -->
+
+					<!-- RIGHT: 입찰 등록 폼 -->
+					<div>
+						<form th:action="@{/auctions/{id}/bids(id=${detail.auctionIdx})}"
+							method="post" enctype="multipart/form-data" id="bidForm">
+							<div
+								class="bg-white border border-gray-200 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
+								<div class="p-6 sm:p-8">
+
+									<!-- 헤더 -->
+									<div class="mb-6">
+										<h2 class="text-xl font-bold text-[#222222] mb-2">판매 제안
+											등록</h2>
+										<div class="bg-blue-50 px-3 py-2 rounded-md">
+											<span class="text-xs sm:text-sm text-gray-700">구매자
+												희망가: </span> <span
+												class="text-xs sm:text-sm font-bold text-blue-600">
+												[[${#numbers.formatInteger(detail.auctionTargetPrice, 0,
+												'COMMA')}]]원 이하 </span>
+										</div>
+									</div>
+
+									<div class="space-y-6">
+
+										<!-- 안내 -->
+										<div
+											class="bg-[#7CBD00]/10 border border-[#7CBD00]/30 rounded-lg p-4">
+											<h4 class="text-sm font-semibold text-[#222222] mb-1">판매자이신가요?</h4>
+											<p class="text-xs sm:text-sm text-gray-700">구매자의 희망가 이하로
+												경쟁력 있는 가격을 제안해보세요. 제안 등록 후 구매자가 선택하면 거래가 확정됩니다.</p>
+										</div>
+
+										<!-- 숨겨진 필드: 카테고리 idx -->
+										<input type="hidden" name="itemCategoryIdx"
+											th:value="${detail.itemCategoryIdx}" />
+
+										<!-- 이미지 업로드 -->
+										<div>
+											<label class="text-sm font-medium text-[#222222] mb-2 block">
+												상품 이미지 <span class="text-red-500">*</span> <span
+												class="text-xs text-gray-500 ml-2">(최소 1장 필수)</span>
+											</label> <input type="file" name="bidImageFile" accept="image/*"
+												id="bidImageFile"
+												class="block w-full text-xs sm:text-sm text-gray-900
+                                  border border-gray-300 rounded-md cursor-pointer bg-white
+                                  file:mr-4 file:py-2 file:px-4
+                                  file:rounded-md file:border-0
+                                  file:text-xs file:sm:text-sm file:font-semibold
+                                  file:bg-gray-100 file:text-gray-700
+                                  hover:file:bg-gray-200">
+											<p class="mt-1 text-[11px] text-gray-500">* 판매할 상품 이미지를
+												등록해주세요.</p>
+											<!-- 미리보기: 기존 JS 재사용 (id 유지) -->
+											<div id="bidPreviewBox" class="mt-2" style="display: none;">
+												<img id="bidPreviewImg"
+													style="max-width: 200px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;">
+											</div>
+										</div>
+
+										<!-- 상품명 -->
+										<div>
+											<label for="itemName"
+												class="text-sm font-medium text-[#222222] mb-2 block">
+												상품명 <span class="text-red-500">*</span>
+											</label> <input id="itemName" type="text" name="itemName"
+												placeholder="제안할 상품명을 입력하세요" required
+												class="w-full bg-white border border-gray-300 rounded-md h-11 px-3 text-sm
+                                  placeholder:text-[#a7a7a7] focus:outline-none focus:ring-2 focus:ring-[#7CBD00]">
+										</div>
+
+										<!-- 브랜드 + 수량 -->
+										<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div>
+												<label for="itemBrand"
+													class="text-sm font-medium text-[#222222] mb-2 block">
+													브랜드 <span class="text-[11px] text-gray-400">(선택)</span>
+												</label> <input id="itemBrand" type="text" name="itemBrand"
+													placeholder="예: NIKE, ADIDAS"
+													class="w-full bg-white border border-gray-300 rounded-md h-11 px-3 text-sm
+                                    placeholder:text-[#a7a7a7] focus:outline-none focus:ring-2 focus:ring-[#7CBD00]">
+											</div>
+											<div>
+												<label for="bidQuantity"
+													class="text-sm font-medium text-[#222222] mb-2 block">
+													수량 <span class="text-red-500">*</span>
+												</label> <input id="bidQuantity" type="number" name="bidQuantity"
+													min="1" value="1" required
+													class="w-full bg-white border border-gray-300 rounded-md h-11 px-3 text-sm
+                                    focus:outline-none focus:ring-2 focus:ring-[#7CBD00]">
+											</div>
+										</div>
+
+										<!-- 제안 가격 -->
+										<div>
+											<label for="bidPrice"
+												class="text-sm font-medium text-[#222222] mb-2 block">
+												제안 금액 (₩) <span class="text-red-500">*</span>
+											</label> <input id="bidPrice" type="text" name="bidPrice"
+												placeholder="예: 50,000 (희망가 이하, 1,000원 단위)" required
+												inputmode="numeric"
+												th:data-max-price="${detail.auctionTargetPrice}"
+												class="w-full bg-white border border-gray-300 rounded-md h-11 px-3 text-sm
+                                  focus:outline-none focus:ring-2 focus:ring-[#7CBD00]">
+											<p class="mt-1 text-[11px] text-gray-500">희망 최대가
+												[[${#numbers.formatInteger(detail.auctionTargetPrice, 0,
+												'COMMA')}]]원 이하, 1,000원 단위로 입력해주세요.</p>
+										</div>
+
+										<!-- 제안 메시지 -->
+										<div>
+											<label for="bidMessage"
+												class="text-sm font-medium text-[#222222] mb-2 block">
+												제안 메시지 <span class="text-[11px] text-gray-400">(선택)</span>
+											</label>
+											<textarea id="bidMessage" name="bidMessage" rows="4"
+												placeholder="상품 상태, 구성품, 배송 조건 등을 입력하세요"
+												class="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm resize-none
+                                     placeholder:text-[#a7a7a7] focus:outline-none focus:ring-2 focus:ring-[#7CBD00]"></textarea>
+										</div>
+
+										<!-- 경고문 -->
+										<div
+											class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
+											<span class="text-yellow-600 mt-0.5 text-lg">⚠</span>
+											<p class="text-xs sm:text-sm text-yellow-800">제안 등록 후
+												구매자가 선택하면 거래가 확정됩니다. 신중하게 제안해주세요.</p>
+										</div>
+
+										<!-- 버튼 -->
+										<div class="flex flex-col sm:flex-row gap-3 pt-4">
+											<button type="button"
+												class="flex-1 min-h-[52px] sm:min-h-[48px] px-4 rounded-lg border border-gray-400 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+												th:onclick="|location.href='/auctions/${detail.auctionIdx}'|">
+												취소</button>
+
+											<button type="submit"
+												class="flex-1 min-h-[52px] sm:min-h-[48px] px-4 rounded-lg bg-[#7CBD00] text-white hover:bg-[#6BAD00] transition-colors font-bold text-sm sm:text-base inline-flex items-center justify-center">
+												<span class="mr-2 text-base">📦</span> 판매 제안 등록
+											</button>
+										</div>
+
+									</div>
+
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- /RIGHT -->
+
+				</div>
+
+			</div>
+		</div>
+
+		<script src="/js/auctionDetail.js"></script>
+	</th:block>
+</body>
+</html>

@@ -1,0 +1,117 @@
+[전체 Controller 엔드포인트 명세]
+기준: src/main/java/com/springbootstudy/bbs/controller/**
+형식: | URL | Method | 기능 | 매핑 클래스 |
+
+| URL | Method | 기능 | 매핑 클래스 |
+|---|---|---|---|
+| /members/naverCallback | GET | 네이버 콜백 페이지 렌더링 | ApiController |
+| /members/naverCallback | POST | 네이버 로그인/회원 처리 | ApiController |
+| /auctions | GET | 경매 목록 조회 | AuctionController |
+| /auctions/category/{categoryCode} | GET | 카테고리별 경매 목록 조회 | AuctionController |
+| /auctions/{auctionIdx} | GET | 경매 상세 조회 | AuctionController |
+| /auctions/new | GET | 경매 등록 폼 | AuctionController |
+| /auctions | POST | 경매 등록 처리 | AuctionController |
+| /auctions/{auctionIdx}/delete | POST | 경매 삭제(작성자) | AuctionController |
+| /auctions/{auctionIdx}/admin-delete | POST | 경매 강제 삭제(관리자) | AuctionController |
+| /auctions/{auctionIdx}/close | POST | 경매 수동 마감 | AuctionController |
+| /auctions/{auctionIdx}/fail | POST | 유찰 처리 | AuctionController |
+| /auctions/{auctionIdx}/bids | GET | 입찰 등록 폼 | AuctionController |
+| /auctions/{auctionIdx}/bids | POST | 입찰 등록 처리 | AuctionController |
+| /auctions/{auctionIdx}/bids/{bidIdx} | GET | 입찰 상세 패널 조회 | AuctionController |
+| /bids/{bidIdx}/cancel | POST | 입찰 취소 | AuctionController |
+| /bids/{bidIdx}/admin-cancel | POST | 입찰 삭제(관리자) | AuctionController |
+| /auctions/{auctionIdx}/bids/{bidIdx}/win | POST | 낙찰자 선정 및 주문 생성 | AuctionController |
+| /boards | GET | 게시판 홈/전체 목록 | BoardController |
+| /boards/{typeCode} | GET | 타입별 게시글 목록 | BoardController |
+| /boards/{typeCode}/{boardIdx} | GET | 게시글 상세 | BoardController |
+| /boards/{typeCode}/new | GET | 게시글 작성 폼 | BoardController |
+| /boards/{typeCode} | POST | 게시글 작성 | BoardController |
+| /boards/{typeCode}/{boardIdx}/edit | GET | 게시글 수정 폼 | BoardController |
+| /boards/{typeCode}/{boardIdx}/edit | POST | 게시글 수정 처리 | BoardController |
+| /boards/{typeCode}/{boardIdx}/delete | POST | 게시글 삭제 | BoardController |
+| /boards/{typeCode}/{boardIdx}/replies | POST | 댓글/대댓글 작성 | BoardController |
+| /boards/{typeCode}/{boardIdx}/like | POST | 게시글 좋아요 | BoardController |
+| /boards/{typeCode}/{boardIdx}/replies/{replyIdx}/like | POST | 댓글 좋아요 | BoardController |
+| /boards/{typeCode}/{boardIdx}/replies/{replyIdx}/edit | POST | 댓글 수정 | BoardController |
+| /boards/{typeCode}/replies/{replyIdx}/delete | POST | 댓글 삭제 | BoardController |
+| /chats/{chatroomIdx} | GET | 채팅방 페이지 | ChatController |
+| /chats/{chatroomIdx}/messages | POST | 채팅 메시지 전송(form) | ChatController |
+| /api/chats/unread-count | GET | 안읽은 채팅 수 조회 | ChatController |
+| /api/chats/rooms | GET | 내 채팅방 목록 조회 | ChatController |
+| /api/chats/rooms/{chatroomIdx}/messages | GET | 채팅방 메시지 목록 조회 | ChatController |
+| /api/chats/rooms/{chatroomIdx}/read | POST | 채팅방 읽음 처리 | ChatController |
+| /api/chats/rooms/{chatroomIdx}/messages | POST | 채팅 메시지 전송(API) | ChatController |
+| / | GET | 메인 페이지 | HomeController |
+| main | GET | 메인 페이지(별칭) | HomeController |
+| /support/guide | GET | 이용안내 페이지 | HomeController |
+| /support/faq | GET | FAQ 페이지 | HomeController |
+| /support/inquiry | GET | 문의 페이지 | HomeController |
+| /summernoteImageUpload | POST | 썸머노트 이미지 업로드 | ImageUploadController |
+| /mypage/addresses/new | GET | 배송지 등록 폼 | MemberAddrController |
+| /member/insertAddrAjax.do | POST | 배송지 등록(AJAX) | MemberAddrController |
+| /mypage/addresses | GET | 배송지 목록 | MemberAddrController |
+| /mypage/addresses/delete | POST | 배송지 삭제 | MemberAddrController |
+| /mypage/addresses/edit | GET | 배송지 수정 폼 | MemberAddrController |
+| /member/updateAddrAjax.do | POST | 배송지 수정(AJAX) | MemberAddrController |
+| /members/register | GET | 회원가입 폼 | MemberController |
+| /members/register | POST | 회원가입 처리 | MemberController |
+| /members/check_id | GET | 아이디 중복검사 | MemberController |
+| /members/login | GET | 로그인 폼 | MemberController |
+| /members/login | POST | 로그인 처리 | MemberController |
+| /members/getRemainingTime | GET | 로그인 제한 남은시간 조회 | MemberController |
+| /members/logout | REQUEST | 로그아웃(세션 종료) | MemberController |
+| mypage/delete | POST | 회원 탈퇴 처리 | MemberController |
+| /mypage/info | GET | 회원정보 조회 페이지 | MemberController |
+| /mypage/info | POST | 회원정보 수정 | MemberController |
+| /checkOldPwd | POST | 기존 비밀번호 확인 | MemberController |
+| /members/pwdFind | GET | 비밀번호 찾기 페이지 | MemberController |
+| /members/pwdFind | POST | 인증문자 발송/비밀번호 찾기 | MemberController |
+| /auth/verifyCode | POST | 인증번호 검증 | MemberController |
+| /auth/checkSamePwd | POST | 기존 비밀번호 동일여부 검사 | MemberController |
+| /members/newPwdFind | POST | 새 비밀번호 저장 | MemberController |
+| /mypage/profile | GET | 프로필 조회 | MemberProfileController |
+| /mypage/profile | POST | 프로필 수정(이미지 포함) | MemberProfileController |
+| /members/checkNickname | POST | 닉네임 중복검사 | MemberProfileController |
+| /mypage/auctions | GET | 마이페이지 내 경매내역 | MyPageController |
+| /mypage/bids | GET | 마이페이지 내 입찰내역 | MyPageController |
+| /mypage/boards | GET | 마이페이지 내 게시글 | MyPageController |
+| /mypage/payments | GET | 마이페이지 결제내역 | MyPageController |
+| /mypage/sales | GET | 마이페이지 판매내역 | MyPageController |
+| /mypage/delete | GET | 회원탈퇴 페이지 | MyPageController |
+| /notifications | GET | 알림 전체 조회 | NotificationController |
+| /notifications/unread | GET | 안읽은 알림 조회 | NotificationController |
+| /notifications/has-unread | GET | 안읽은 알림 존재여부 | NotificationController |
+| /notifications/recent | GET | 최근 알림 조회 | NotificationController |
+| /notifications/read | POST | 알림 단건 읽음 처리 | NotificationController |
+| /notifications/read-all | POST | 알림 전체 읽음 처리 | NotificationController |
+| /mypage/orders | GET | 거래내역 전체 조회 | OrdersController |
+| /mypage/orders/buy | GET | 구매 거래내역 조회 | OrdersController |
+| /mypage/orders/sell | GET | 판매 거래내역 조회 | OrdersController |
+| /mypage/orders/{orderIdx} | GET | 거래 상세 조회 | OrdersController |
+| /mypage/orders/{orderIdx}/confirm | POST | 구매확정 처리 | OrdersController |
+| /mypage/orders/{orderIdx}/cancel | POST | 거래취소/환불 처리 | OrdersController |
+| /api/payment/confirm | POST | 결제 승인 처리 | PaymentApiController |
+| /api/payment/ship | POST | 발송처리(운송장 등록) | PaymentApiController |
+| /api/payment/confirm-receipt | POST | 수령확인 처리 | PaymentApiController |
+| /api/payment/session-info | GET | 결제 세션 정보 조회 | PaymentApiController |
+| /payment/pay | GET | 결제 페이지 | PaymentPageController |
+| /payment/success | GET | 결제 성공 페이지 | PaymentPageController |
+| /payment/fail | GET | 결제 실패 페이지 | PaymentPageController |
+| /profile/{memIdx} | GET | 회원 프로필 공개 조회 | ProfileViewController |
+| /reviews/detail/{reviewIdx} | GET | 리뷰 상세 페이지 | ProfileViewController |
+| /mypage/reviews | GET | 내 리뷰 목록 | ReviewController |
+| /mypage/reviews/reviewWrite | GET | 리뷰 작성 페이지 | ReviewController |
+| /mypage/reviews/reviewSearch | GET | 리뷰 대상 검색 | ReviewController |
+| /mypage/reviews/reviewWrite | POST | 리뷰 등록 처리 | ReviewController |
+| /mypage/reviews/reviewDetail | GET | 리뷰 상세 조회 | ReviewController |
+| /reviewDelete | GET | 리뷰 삭제(관리) | ReviewController |
+| /review/hardDelete | GET | 리뷰 영구삭제(관리) | ReviewController |
+| /review/reviewCancel | GET | 리뷰 삭제 취소(관리) | ReviewController |
+| /reviewAdmin | GET | 리뷰 관리자 페이지 | ReviewController |
+| /error | REQUEST | 커스텀 오류 페이지 라우팅 | ErrorPageController |
+| /app/notifications/ping (client send), /topic/notifications/{memIdx} (subscribe) | STOMP | 알림 채널 연결 체크/ACK 브로드캐스트 | NotificationWebSocketController |
+| /app/chat/send (client send), /topic/chatroom/{chatroomIdx} (subscribe) | STOMP | 실시간 채팅 메시지 송수신 | WebSocketChatController |
+
+참고
+- STOMP prefix는 WebSocketConfig 기준: application destination '/app', broker '/topic'.
+- Endpoint는 코드 기준으로 작성했으며, 일부 REQUEST 매핑은 HTTP method를 특정하지 않음.

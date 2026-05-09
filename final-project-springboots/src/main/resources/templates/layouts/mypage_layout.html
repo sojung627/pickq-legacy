@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PickQ - 마이페이지</title>
+
+<!-- Pretendard -->
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+
+<!-- 공통 CSS -->
+<link rel="stylesheet" th:href="@{/css/common.css}">
+
+<!-- favicon -->
+<link rel="shortcut icon" href="/images/common/pickQ_favicon.ico" type="image/x-icon">
+
+<!-- Bootstrap -->
+<link th:href="@{/bootstrap/bootstrap.min.css}" rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet"
+   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<!-- Tailwind (테스트용) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
+<script th:src="@{/js/formcheck.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script th:src="@{/js/notificationSocket.js}" defer></script>
+<script th:src="@{/js/chatPopup.js}" defer></script>
+<script th:src="@{/js/toast.js}"></script>
+</head>
+<body class="font-['Pretendard']">
+   <div class="container">
+
+      <!-- header -->
+      <div th:replace="~{fragments/header :: header}"></div>
+
+      <script th:src="@{/bootstrap/bootstrap.bundle.min.js}"></script>
+
+      <!-- 공통 마이페이지 레이아웃 -->
+      <div class="min-h-screen bg-white">
+         <div class="mx-auto max-w-[1200px] px-4 sm:px-6 py-8">
+            <!-- 상단 헤더 -->
+				<header class="mb-4 py-3 px-3 sm:py-10">
+					<div
+						class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<div>
+                     <h1 class="text-3xl sm:text-4xl font-bold text-[#222222] mb-1">마이 페이지</h1>
+                     <p class="text-base text-[#767676]">내 정보와 활동 내역을 관리하세요.</p>
+						</div>
+					</div>
+				</header>
+
+               <div class="flex flex-col gap-6 lg:flex-row lg:gap-8">
+               <!-- 공통 사이드바 -->
+                  <aside class="w-full lg:w-60 lg:flex-shrink-0">
+                  <div
+                        class="bg-white border border-gray-100 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] sticky top-24 overflow-hidden">
+                        <button id="mypage-sidebar-toggle" type="button"
+                           class="lg:hidden w-full flex items-center justify-between px-4 py-3 border-b border-gray-100 text-base font-semibold text-[#222222]"
+                           aria-expanded="false"
+                           aria-controls="mypage-sidebar-body"
+                           onclick="toggleMypageSidebarAccordion()">
+                           <span>마이페이지 메뉴</span>
+                           <i class="bi bi-chevron-down text-[#767676] transition-transform duration-300"
+                              id="mypage-sidebar-icon"></i>
+                        </button>
+                        <div class="hidden lg:block px-4 py-3 border-b border-gray-100">
+                           <h3 class="text-base font-semibold text-[#222222]">마이페이지 메뉴</h3>
+                        </div>
+                        <div id="mypage-sidebar-body"
+                           class="overflow-hidden transition-[max-height] duration-300 ease-in-out max-h-0 lg:max-h-none lg:overflow-visible">
+
+                     <!-- MY 경매 -->
+                     <div class="px-4 py-3 border-b border-gray-100">
+                        <h3
+                           class="text-xs font-semibold tracking-[0.06em] text-[#8C8F95]">MY
+                           경매</h3>
+                     </div>
+                     <div class="px-2 py-2 space-y-1">
+                        <a th:href="@{/mypage/auctions}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+                           th:classappend="${activeMenu == 'myAuctions'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                                  ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                        <span>내 경매 내역</span>
+								</a> <a th:href="@{/mypage/bids}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+									th:classappend="${activeMenu == 'myBids'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                                                                                ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                        <span>내 입찰 내역</span>
+								</a> <a th:href="@{/mypage/orders}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+									th:classappend="${activeMenu == 'myOrders'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                                                                                ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                        <span>내 거래 내역</span>
+								</a>
+							</div>
+
+                     <!-- MY 활동 -->
+                     <div class="px-4 py-3 border-y border-gray-100 bg-gray-50 mt-1">
+                        <h3
+                           class="text-xs font-semibold tracking-[0.06em] text-[#8C8F95]">MY
+                           활동</h3>
+                     </div>
+                     <div class="px-2 py-2 space-y-1">
+                        <a th:href="@{/mypage/profile}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+                           th:classappend="${activeMenu == 'profile'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                              ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                              <span>나의 프로필</span>
+                        </a> <a th:href="@{/mypage/boards}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+                           th:classappend="${activeMenu == 'posts'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                              ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                              <span>내가 쓴 글</span>
+                        </a> <a th:href="@{/mypage/reviews}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+                           th:classappend="${activeMenu == 'reviews'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                              ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                        <span>내 리뷰 관리</span>
+								</a>
+							</div>
+
+                     <!-- MY 정보 -->
+                     <div class="px-4 py-3 border-y border-gray-100 bg-gray-50 mt-1">
+                        <h3
+                           class="text-xs font-semibold tracking-[0.06em] text-[#8C8F95]">MY
+                           정보</h3>
+                     </div>
+                     <div class="px-2 py-2 space-y-1 mb-2">
+                        <a th:href="@{/mypage/info}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+                           th:classappend="${activeMenu == 'member'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                              ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                              <span>개인정보확인/수정</span>
+                        </a> <a th:href="@{/mypage/addresses}"
+                           class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+                           th:classappend="${activeMenu == 'address'} ?
+                                  ' bg-gray-100 text-[#222222]' :
+                              ' text-[#767676] font-semibold hover:bg-gray-50 hover:text-[#222222]'">
+                              <span>배송지 관리</span>
+                        </a> 
+                        
+                        <!-- 회원탈퇴 post로 바꾸기 위해
+                        form 추가 및 a 태그의 href 제거 했습니다!
+                        확인 결과 탈퇴처리 잘 됩니다! -->
+                        <form id="delete-form" th:action="@{/mypage/delete}" method="post" style="display: none;"></form>
+                           <a class="w-full inline-flex items-center rounded-lg px-4 py-3 text-base font-semibold transition-colors"
+                              th:classappend="${activeMenu == 'delete'} ? ' bg-[#FFF5F5] text-[#D64545]' : ' text-[#D64545] font-semibold hover:bg-[#FFF5F5]'"
+                              onclick="if(confirm('정말 탈퇴하시겠습니까?')) { document.getElementById('delete-form').submit(); }">
+                                 <span>회원탈퇴</span>
+                           </a>
+                        
+                     </div>
+
+                        </div>
+                     </div>
+               </aside>
+
+               <!-- 오른쪽 영역: 각 페이지에서 채워 넣는 부분 -->
+                  <main class="flex-1 min-w-0" layout:fragment="content">
+                  <!-- 각 마이페이지 화면에서 오버라이드 -->
+               </main>
+
+            </div>
+         </div>
+      </div>
+
+      <!-- footer -->
+      <div class="mt-10"></div>
+      <div th:replace="~{fragments/footer :: footer}"></div>
+
+	</div>
+	<!-- floating-buttons -->
+	<div th:replace="fragments/floating-buttons :: floating-buttons"></div>
+   <script>
+      function toggleMypageSidebarAccordion() {
+         var toggle = document.getElementById('mypage-sidebar-toggle');
+         var body = document.getElementById('mypage-sidebar-body');
+         var icon = document.getElementById('mypage-sidebar-icon');
+
+         if (!toggle || !body) return;
+
+         var isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+         if (isExpanded) {
+            body.style.maxHeight = body.scrollHeight + 'px';
+            requestAnimationFrame(function () {
+               body.style.maxHeight = '0px';
+            });
+            toggle.setAttribute('aria-expanded', 'false');
+            if (icon) icon.style.transform = 'rotate(0deg)';
+         } else {
+            body.style.maxHeight = body.scrollHeight + 'px';
+            body.addEventListener('transitionend', function handler() {
+               body.style.maxHeight = 'none';
+               body.removeEventListener('transitionend', handler);
+            });
+            toggle.setAttribute('aria-expanded', 'true');
+            if (icon) icon.style.transform = 'rotate(180deg)';
+         }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+         var toggle = document.getElementById('mypage-sidebar-toggle');
+         var body = document.getElementById('mypage-sidebar-body');
+         if (!toggle || !body) return;
+         if (window.innerWidth < 1024) {
+            body.style.maxHeight = '0px';
+            toggle.setAttribute('aria-expanded', 'false');
+         }
+      });
+   </script>
+</body>
+</html>

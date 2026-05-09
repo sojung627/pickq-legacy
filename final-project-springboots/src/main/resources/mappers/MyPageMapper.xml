@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--	
+	마이바티스 참고 사이트
+	  - http://blog.mybatis.org/
+	  - http://www.mybatis.org/mybatis-3/ko/index.html
+	  
+	@Mapper 애노테이션이 적용된 인터페이스와 맵퍼 XML파일은
+	namespace 속성으로 연결되기 때문에 맵퍼 XML의 namespace를
+	지정할 때 @Mapper 애노테이션이 적용된 맵퍼 인터페이스의
+	완전한 클래스 이름(패키지를 포함한 이름)을 지정하면 된다.   
+-->
+<mapper namespace="com.springbootstudy.bbs.mapper.MyPageMapper">
+
+	<!-- 내 경매 목록 (경매 정보 + 유효 마감 시 낙찰 요약) -->
+	<select id="getMyAuctions" parameterType="long" resultType="AuctionDTO">
+		SELECT
+			a.auction_idx AS auctionIdx,
+			a.auction_title AS auctionTitle,
+			a.auction_target_price AS auctionTargetPrice,
+			a.auction_end_at AS auctionEndAt,
+			a.auction_regdate AS auctionRegdate,
+			a.auction_status_idx AS auctionStatusIdx,
+			ast.auction_status_name AS auctionStatusName,
+			ic.item_category_name AS itemCategoryName,
+			ic.item_category_code AS itemCategoryCode,
+			(
+				SELECT COUNT(*)
+				FROM bid bcnt
+				WHERE bcnt.auction_idx = a.auction_idx
+				  AND bcnt.bid_status_idx IN (1, 2, 3)
+			) AS bidCount,
+			(
+				SELECT MIN(bmin.bid_price)
+				FROM bid bmin
+				WHERE bmin.auction_idx = a.auction_idx
+				  AND bmin.bid_status_idx IN (1, 2, 3)
+			) AS minBidPrice,
+			wb.bid_idx AS winnerBidIdx,
+			i.item_name AS winnerItemName,
+			wb.bid_price AS winnerBidPrice,
+			wm.mem_id AS winnerBidderMemId,
+			CASE
+				WHEN wm.mem_id IS NULL OR wm.mem_id = '' THEN '-'
+				WHEN CHAR_LENGTH(wm.mem_id) > 2 THEN CONCAT(
+					SUBSTRING(wm.mem_id, 1, 2),
+					REPEAT('*', GREATEST(1, CHAR_LENGTH(wm.mem_id) - 3)),
+					SUBSTRING(wm.mem_id, CHAR_LENGTH(wm.mem_id), 1)
+				)
+				ELSE CONCAT(SUBSTRING(wm.mem_id, 1, 1), REPEAT('*', GREATEST(1, CHAR_LENGTH(wm.mem_id) - 1)))
+			END AS winnerBidderMemIdMasked
+		FROM auction a
+		JOIN auction_status ast ON a.auction_status_idx = ast.auction_status_idx
+		JOIN item_category ic ON a.item_category_idx = ic.item_category_idx
+		LEFT JOIN bid wb ON wb.auction_idx = a.auction_idx AND wb.bid_status_idx = 2
+		LEFT JOIN item i ON wb.item_idx = i.item_idx
+		LEFT JOIN member wm ON wb.bidder_idx = wm.mem_idx
+		WHERE a.buyer_idx = #{memIdx}
+		  AND a.auction_is_deleted = 'N'
+		ORDER BY a.auction_regdate DESC
+	</select>
+
+	<!-- 내 입찰 목록 (입찰 데이터 + 경매 제목) -->
+	<select id="getMyBids" parameterType="long" resultType="BidDTO">
+		SELECT
+			bv.*,
+			a.auction_title AS auctionTitle
+		FROM bid_list_view bv
+		JOIN auction a ON bv.auction_idx = a.auction_idx
+		WHERE bv.bidder_idx = #{memIdx}
+		ORDER BY bv.bid_regdate DESC
+	</select>
+
+	<!-- 내 게시글 목록 -->
+	<select id="getMyBoards" parameterType="long"
+		resultType="BoardVO"> SELECT b.board_idx, b.board_title, b.board_view_count, b.board_like,
+		b.board_regdate, bt.board_type_name, bt.board_type_code, mp.mem_nickname, (SELECT COUNT(*) FROM
+		reply r WHERE r.board_idx = b.board_idx AND r.reply_is_deleted = 'N') AS reply_count FROM board
+		b LEFT JOIN board_type bt ON b.board_type_idx = bt.board_type_idx LEFT JOIN member_profile mp ON
+		b.mem_idx = mp.mem_idx WHERE b.mem_idx = #{memIdx} AND b.board_is_deleted = 'N' ORDER BY
+		b.board_regdate DESC </select>
+
+	<!-- 판매자 - 낙찰된 입찰 목록 (결제 완료된 것만) -->
+	<select id="getMyWonBids" resultType="com.springbootstudy.bbs.domain.PaymentVO"> SELECT p.*,
+		i.item_name, i.item_brand, i.item_thumbnail_img, a.auction_title, a.auction_status_idx FROM
+		payment p JOIN bid b ON p.bid_idx = b.bid_idx JOIN item i ON b.item_idx = i.item_idx JOIN
+		auction a ON b.auction_idx = a.auction_idx WHERE b.bidder_idx = #{memIdx} AND p.pay_status =
+		'DONE' ORDER BY p.pay_regdate DESC </select>
+
+	<!-- auctionIdx로 낙찰된 bidIdx 조회 -->
+	<select id="getWonBidIdxByAuctionIdx" resultType="long"> SELECT bid_idx FROM bid WHERE auction_idx
+		= #{auctionIdx} AND bid_status_idx = 2 LIMIT 1 </select>
+
+	<!-- 내 결제 내역 (구매자) -->
+	<select id="getMyPayments" resultType="com.springbootstudy.bbs.domain.MyPagePaymentVO"> SELECT
+		p.*, i.item_name, i.item_thumbnail_img, d.courier_company, d.tracking_number, d.delivery_status,
+		d.shipped_at, d.delivered_at FROM payment p JOIN bid b ON p.bid_idx = b.bid_idx JOIN item i ON
+		b.item_idx = i.item_idx LEFT JOIN delivery d ON p.bid_idx = d.bid_idx WHERE p.mem_idx =
+		#{memIdx} AND p.pay_status IN ('DONE', 'CONFIRMED') ORDER BY p.pay_regdate DESC </select>
+
+	<!-- 내 판매 내역 (판매자) -->
+	<select id="getMySales" resultType="com.springbootstudy.bbs.domain.MyPagePaymentVO"> SELECT p.*,
+		i.item_name, i.item_thumbnail_img, d.courier_company, d.tracking_number, d.delivery_status,
+		d.shipped_at, d.delivered_at FROM payment p JOIN bid b ON p.bid_idx = b.bid_idx JOIN item i ON
+		b.item_idx = i.item_idx LEFT JOIN delivery d ON p.bid_idx = d.bid_idx WHERE b.bidder_idx =
+		#{memIdx} AND p.pay_status IN ('DONE', 'CONFIRMED') ORDER BY p.pay_regdate DESC </select>
+
+</mapper>	

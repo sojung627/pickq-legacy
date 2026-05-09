@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/main_layout}">
+<head>
+<meta charset="UTF-8">
+<title th:text="${errorTitle != null ? errorTitle + ' - PickQ' : '오류 - PickQ'}">오류 - PickQ</title>
+</head>
+<body>
+	<main layout:fragment="content">
+		<div class="min-h-[70vh] flex items-center justify-center px-4 py-10">
+			<div class="w-full max-w-2xl rounded-3xl border border-gray-100 bg-white px-6 py-10 text-center shadow-[0_4px_18px_rgba(0,0,0,0.04)] sm:px-10">
+				<div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#F3FAE8] text-2xl text-[#7CBD00]">
+					<i data-feather="alert-triangle" class="h-7 w-7"></i>
+				</div>
+
+				<p class="text-xs font-semibold uppercase tracking-[0.24em] text-[#7CBD00]">PickQ Error</p>
+				<h1 class="mt-3 text-2xl font-bold text-[#222222] sm:text-3xl"
+					th:text="${errorTitle != null ? errorTitle : '서비스 점검중입니다'}">서비스 점검중입니다</h1>
+				<p class="mt-4 text-sm leading-7 text-[#6B7280]"
+					th:text="${errorMessage != null ? errorMessage : '잠시 후 다시 시도해 주세요.'}">
+					잠시 후 다시 시도해 주세요.
+				</p>
+
+				<div class="mt-8 rounded-2xl bg-[#F9FAFB] px-4 py-4 text-sm text-[#374151]">
+					서비스 점검중입니다.
+					<span class="font-semibold text-[#222222]"
+						th:text="${' ' + (countdownSeconds != null ? countdownSeconds : 3) + '초 뒤 메인 화면으로 이동합니다.'}"
+						3초 뒤 메인 화면으로 이동합니다.
+					</span>
+				</div>
+
+				<div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+					<a id="errorHomeButton"
+						th:href="@{/}"
+						class="inline-flex items-center justify-center rounded-full bg-[#222222] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#111111]">
+						메인으로 돌아가기
+					</a>
+				</div>
+
+				<p class="mt-5 text-xs text-[#9CA3AF]"
+					th:text="${statusCode != null ? 'Error code: ' + statusCode : 'Error code: 500'}">
+					Error code: 500
+				</p>
+			</div>
+		</div>
+
+		<script th:inline="javascript">
+			(function () {
+				const redirectUrl = /*[[${redirectUrl}]]*/ '/';
+				const autoRedirect = /*[[${autoRedirect}]]*/ false;
+				const countdownSeconds = /*[[${countdownSeconds}]]*/ 3;
+				const homeButton = document.getElementById('errorHomeButton');
+				let remaining = Number(countdownSeconds || 3);
+				let timerId = null;
+
+				function goHome() {
+					if (timerId) {
+						clearInterval(timerId);
+						timerId = null;
+					}
+					window.location.href = redirectUrl || '/';
+				}
+
+				if (homeButton) {
+					homeButton.addEventListener('click', function (event) {
+						event.preventDefault();
+						goHome();
+					});
+				}
+
+				if (autoRedirect) {
+					timerId = window.setInterval(function () {
+						remaining -= 1;
+						if (remaining <= 0) {
+							goHome();
+						}
+					}, 1000);
+
+					window.setTimeout(goHome, Math.max(1, Number(countdownSeconds || 3)) * 1000);
+				}
+			})();
+		</script>
+	</main>
+</body>
+</html>

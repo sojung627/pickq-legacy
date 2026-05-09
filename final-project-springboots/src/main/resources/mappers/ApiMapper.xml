@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbootstudy.bbs.mapper.ApiMapper">
+
+   <!-- 이메일로 회원 조회 -->
+	<select id="findByEmail" resultType="com.springbootstudy.bbs.domain.MemberVO">
+	    SELECT *
+	    FROM member
+	    WHERE mem_email = #{memEmail}
+	</select>
+	
+	
+	<!-- 회원 등록 -->
+	<insert id="insertMember">
+	    INSERT INTO member (
+	        mem_id,
+	        mem_pwd,
+	        mem_name,
+	        mem_tel,
+	        mem_email,
+	        mem_ip,
+	        mem_role_idx,
+	        mem_grade_idx,
+	        mem_bday,
+	        mem_login_type
+	    ) VALUES (
+	        #{memId},
+	        #{memPwd},
+	        #{memName},
+	        #{memTel},
+	        #{memEmail},
+	        #{memIp},
+	        #{memRoleIdx},
+	        #{memGradeIdx},
+	        #{memBday},
+	        #{memLoginType}
+	    )
+	</insert> 
+    
+</mapper>
+

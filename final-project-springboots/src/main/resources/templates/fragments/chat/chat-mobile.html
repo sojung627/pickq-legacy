@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="chat-mobile-view">
+    <div id="chatMobileModalRoot" class="hidden fixed inset-0 z-[70] bg-white">
+        <div id="chatMobileListPane" class="h-full flex flex-col">
+            <div class="h-14 shrink-0 border-b border-gray-100 px-4 flex items-center justify-between">
+                <p class="text-sm font-semibold text-gray-800">채팅</p>
+                <button id="chatMobileCloseBtn" type="button"
+                        class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
+                    <i data-feather="x" class="w-4 h-4 text-gray-700"></i>
+                </button>
+            </div>
+            <div id="chatMobileRoomList" class="flex-1 min-h-0 overflow-y-auto"></div>
+        </div>
+
+        <div id="chatMobileRoomPane" class="hidden h-full flex-col">
+            <div class="h-14 shrink-0 border-b border-gray-100 px-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <button id="chatMobileBackBtn" type="button"
+                            class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
+                        <i data-feather="chevron-left" class="w-4 h-4 text-gray-700"></i>
+                    </button>
+                    <p id="chatMobileRoomTitle" class="text-sm font-semibold text-gray-800"></p>
+                </div>
+                <button id="chatMobileRoomCloseBtn" type="button"
+                        class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center">
+                    <i data-feather="x" class="w-4 h-4 text-gray-700"></i>
+                </button>
+            </div>
+            <div id="chatMobileMessageList" class="flex-1 min-h-0 overflow-y-auto px-3 py-3 bg-gray-50"></div>
+            <div class="shrink-0 border-t border-gray-100 bg-white px-3 py-2">
+                <form id="chatMobileComposeForm" class="flex items-center gap-2">
+                    <textarea id="chatMobileMessageInput" rows="1"
+                              class="flex-1 min-h-[40px] max-h-28 overflow-y-auto resize-none rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7CBD00]"
+                              placeholder="메시지를 입력하세요"></textarea>
+                    <button type="submit"
+                            class="shrink-0 h-10 px-3 rounded-xl bg-[#222222] text-white text-sm font-semibold hover:bg-[#333333]">전송</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

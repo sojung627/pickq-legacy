@@ -1,0 +1,90 @@
+<script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" charset="utf-8"></script>
+
+<div class="loader-container">
+    <div class="ball-spinner"></div>
+    <div id="loadingStatus">네이버 로그인 확인 중...</div>
+</div>
+
+<style>
+.loader-container {
+    text-align: center;
+    margin-top: 20%;
+}
+
+.ball-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #ff6b00; /* PickQ 상징색! */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loadingStatus {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+</style>
+
+<script>
+var naverLogin = new naver.LoginWithNaverId({
+    clientId: "2Rk518jWd9bxOQoKuUnD",
+    callbackUrl: "http://172.30.1.94:8080/members/naverCallback",
+    isPopup: false
+});
+
+naverLogin.init();
+
+window.addEventListener('load', function () {
+    const statusText = document.getElementById('loadingStatus');
+    statusText.innerText = "네이버 로그인 인증 중... 🔑";
+
+    naverLogin.getLoginStatus(function (status) {
+        if (status) {
+            statusText.innerText = "회원 정보 확인 중... ⚽";
+
+            var email    = naverLogin.user.getEmail();
+            var name     = naverLogin.user.getName();
+            var tel      = naverLogin.user.getMobile();
+            var birthyear = naverLogin.user.getBirthyear();
+            var birthday  = naverLogin.user.getBirthday();
+            var memBday  = birthyear + "-" + birthday;
+
+            fetch("/members/naverCallback", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "memName="  + encodeURIComponent(name)  +
+                      "&memEmail=" + encodeURIComponent(email) +
+                      "&memTel="   + encodeURIComponent(tel)   +
+                      "&memBday="  + encodeURIComponent(memBday)
+            })
+            .then(res => res.json())       // ← 서버 응답을 JSON으로 받음
+            .then(data => {
+                if (data.success) {
+                    statusText.innerText = "로그인 성공! 이동합니다 🏆";
+                    setTimeout(() => {
+                        window.location.href = data.redirectUrl || "/main";
+                    }, 800);
+                } else {
+                    statusText.innerText = "로그인 실패: " + (data.message || "다시 시도해주세요");
+                }
+            })
+            .catch(err => {
+                statusText.innerText = "오류가 발생했습니다. 😭";
+                console.error(err);
+            });
+
+        } else {
+            statusText.innerText = "인증에 실패했습니다. 다시 시도해주세요.";
+        }
+    });
+});
+</script>
