@@ -25,16 +25,30 @@ public class WebConfig implements WebMvcConfigurer {
 		registry.addInterceptor(new LoginCheckInterceptor())
 				.addPathPatterns("/**")
 				.excludePathPatterns(
-						"/views/member/login",
-						"/views/member/signUp",
-						"/views/member/check_id",
-						"/fragments/main",
-						// 경매 조회는 비회원 허용
+						"/",
+						"/main",
+						"/error",
+
+						"/members/login",
+						"/members/register",
+						"/members/check_id",
+						"/members/pwdFind",
+						"/auth/**",
+
+						"/css/**",
+						"/js/**",
+						"/images/**",
+						"/bootstrap/**",
+						"/favicon.ico",
+
+						"/fragments/**",
+
 						"/auctions",
 						"/auctions/category/**",
 						"/auctions/*",
 						"/auctions/*/bids/*",
-						"/auctions/*/bids/*/win");
+						"/auctions/*/bids/*/win"
+				);
 	}
 
 	/*
