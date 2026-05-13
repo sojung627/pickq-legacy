@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +38,8 @@ public class ApiController {
 			@RequestParam("memEmail") String memEmail,
 			@RequestParam("memTel") String memTel,
 			@RequestParam("memBday") String memBday,
-			HttpSession session) {
+			HttpSession session,
+			HttpServletRequest request) {
 		Map<String, Object> result = new HashMap<>();
 
 		try {

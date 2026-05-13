@@ -13,11 +13,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-                .setAllowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*")
+                .setAllowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "https://*.railway.app")
                 .withSockJS();
 
         registry.addEndpoint("/ws-notification")
-            .setAllowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*")
+            .setAllowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*",  "https://*.railway.app")
             .withSockJS();
     }
 
