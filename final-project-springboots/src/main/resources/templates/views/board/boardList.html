@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <title
-	th:text="${currentType != null} ? ${currentType.boardTypeName} + ' - PickQ' : '커뮤니티 - PickQ'">
+	th:text="${currentType != null ? currentType.boardTypeName + ' - PickQ' : '커뮤니티 - PickQ'}">
 	커뮤니티 - PickQ</title>
 </head>
 <body>
@@ -38,7 +38,7 @@
 								<span class="flex items-center gap-2"> <span>종목별
 										게시판</span> <span id="sidebar-current-board"
 									class="text-xs font-normal text-[#767676]"
-									th:text="${currentType != null} ? '· ' + ${currentType.boardTypeName} : '· 전체 게시판'">
+														 th:text="${currentType != null ? '· ' + currentType.boardTypeName : '· 전체 게시판'}">
 								</span>
 								</span> <i
 									class="bi bi-chevron-down text-[#767676] transition-transform duration-300"
