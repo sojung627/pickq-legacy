@@ -71,27 +71,34 @@ public class WebConfig implements WebMvcConfigurer {
 
 		// 프로필 이미지
 		registry.addResourceHandler("/images/profile/**")
-				.addResourceLocations("file:///"
-						+ System.getProperty("user.dir").replace("\\", "/")
-						+ "/src/main/resources/static/images/profile/");
+				.addResourceLocations("classpath:/static/images/profile/");
+//		registry.addResourceHandler("/images/profile/**")
+//				.addResourceLocations("file:///"
+//						+ System.getProperty("user.dir").replace("\\", "/")
+//						+ "/src/main/resources/static/images/profile/");
 
 		// 경매 이미지
 		registry.addResourceHandler("/images/auction/**")
-				.addResourceLocations("file:///"
-						+ System.getProperty("user.dir").replace("\\", "/")
-						+ "/src/main/resources/static/images/auction/");
+				.addResourceLocations("classpath:/static/images/auction/");
+//		registry.addResourceHandler("/images/auction/**")
+//				.addResourceLocations("file:///"
+//						+ System.getProperty("user.dir").replace("\\", "/")
+//						+ "/src/main/resources/static/images/auction/");
 
 		// 입찰 이미지
 		registry.addResourceHandler("/images/bid/**")
-				.addResourceLocations("file:///"
-						+ System.getProperty("user.dir").replace("\\", "/")
-						+ "/src/main/resources/static/images/bid/");
+				.addResourceLocations("classpath:/static/images/bid/");
+//		registry.addResourceHandler("/images/bid/**")
+//				.addResourceLocations("file:///"
+//						+ System.getProperty("user.dir").replace("\\", "/")
+//						+ "/src/main/resources/static/images/bid/");
 
 		// 게시글 이미지 - src/main/resources/static/images/board 실시간 서빙
-		registry
-				.addResourceHandler("/images/board/**")
-				.addResourceLocations("file:///" + System.getProperty("user.dir").replace("\\", "/")
-						+ "/src/main/resources/static/images/board/");
+		registry.addResourceHandler("/images/board/**")
+				.addResourceLocations("classpath:/static/images/board/");
+//		registry.addResourceHandler("/images/board/**")
+//				.addResourceLocations("file:///" + System.getProperty("user.dir").replace("\\", "/")
+//						+ "/src/main/resources/static/images/board/");
 
 	}
 }
