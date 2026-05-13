@@ -1,14 +1,28 @@
-# Java 21 이미지 사용
-FROM eclipse-temurin:21
+# =========================
+# Build Stage
+# =========================
+FROM gradle:8.7-jdk21 AS builder
 
-# 작업 폴더 생성
 WORKDIR /app
 
-# jar 파일 복사
-COPY build/libs/*.jar app.jar
+# 프로젝트 전체 복사
+COPY . .
 
-# 8080 포트 오픈
+# gradle build 실행 (test 제외)
+RUN gradle build -x test
+
+# =========================
+# Run Stage
+# =========================
+FROM eclipse-temurin:21
+
+WORKDIR /app
+
+# build 결과 jar 복사
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+# Railway 포트
 EXPOSE 8080
 
 # 실행
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
