@@ -38,9 +38,7 @@
     function updateScrollButtons() {
         const topBtn = el("scrollTopBtn");
         const bottomBtn = el("scrollBottomBtn");
-        if (!topBtn || !bottomBtn) {
-            return;
-        }
+        if (!topBtn || !bottomBtn) return;
 
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollHeight = document.documentElement.scrollHeight;
@@ -60,9 +58,7 @@
 
     function updateUnreadBadge(count) {
         const badge = el("chatUnreadBadge");
-        if (!badge) {
-            return;
-        }
+        if (!badge) return;
 
         const unread = Math.max(0, Number(count || 0));
         if (unread > 0) {
@@ -74,6 +70,7 @@
         }
     }
 
+    // ✅ requestJson 단일 정의 (중복 제거)
     function requestJson(url, options) {
         return fetch(url, options).then((res) => {
             if (res.status === 401) {
@@ -87,6 +84,9 @@
             return res.json();
         });
     }
+
+    // ✅ loadChatRooms 제거 (fetchRooms로 통일)
+    // ✅ loginMember / if(loginMember) 블록 제거
 
     function fetchUnreadCount() {
         const context = getLoginContext();
@@ -122,13 +122,8 @@
         return div.innerHTML;
     }
 
-    function desktopRoot() {
-        return el("chatDesktopModalRoot");
-    }
-
-    function mobileRoot() {
-        return el("chatMobileModalRoot");
-    }
+    function desktopRoot() { return el("chatDesktopModalRoot"); }
+    function mobileRoot() { return el("chatMobileModalRoot"); }
 
     function activeMessageListEl() {
         return state.activeView === "mobile" ? el("chatMobileMessageList") : el("chatDesktopMessageList");
@@ -142,12 +137,8 @@
         const desktop = desktopRoot();
         const mobile = mobileRoot();
 
-        if (desktop) {
-            desktop.classList.toggle("hidden", !(visible && view === "desktop"));
-        }
-        if (mobile) {
-            mobile.classList.toggle("hidden", !(visible && view === "mobile"));
-        }
+        if (desktop) desktop.classList.toggle("hidden", !(visible && view === "desktop"));
+        if (mobile) mobile.classList.toggle("hidden", !(visible && view === "mobile"));
     }
 
     function updateDesktopPanels() {
@@ -155,9 +146,7 @@
         const conversation = el("chatDesktopConversationWrap");
         const hasSelection = Boolean(state.selectedRoomId);
 
-        if (placeholder) {
-            placeholder.classList.toggle("hidden", hasSelection);
-        }
+        if (placeholder) placeholder.classList.toggle("hidden", hasSelection);
         if (conversation) {
             conversation.classList.toggle("hidden", !hasSelection);
             conversation.classList.toggle("flex", hasSelection);
@@ -169,9 +158,7 @@
         const roomPane = el("chatMobileRoomPane");
         const hasSelection = Boolean(state.selectedRoomId);
 
-        if (listPane) {
-            listPane.classList.toggle("hidden", hasSelection);
-        }
+        if (listPane) listPane.classList.toggle("hidden", hasSelection);
         if (roomPane) {
             roomPane.classList.toggle("hidden", !hasSelection);
             roomPane.classList.toggle("flex", hasSelection);
@@ -183,15 +170,11 @@
         updateMobilePanels();
 
         const title = activeRoomTitleEl();
-        if (title) {
-            title.textContent = state.selectedRoomName || "";
-        }
+        if (title) title.textContent = state.selectedRoomName || "";
     }
 
     function renderRoomListInto(listEl) {
-        if (!listEl) {
-            return;
-        }
+        if (!listEl) return;
 
         if (!state.rooms.length) {
             listEl.innerHTML = '<div class="h-full flex items-center justify-center text-sm text-gray-400">채팅방이 없습니다.</div>';
@@ -203,8 +186,7 @@
             const activeClass = active ? "bg-gray-100 border-l-4 border-l-[#7CBD00]" : "hover:bg-gray-50";
             const unreadBadge = room.unreadCount > 0
                 ? '<span class="inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-semibold">'
-                    + (room.unreadCount > 99 ? "99+" : String(room.unreadCount))
-                    + '</span>'
+                    + (room.unreadCount > 99 ? "99+" : String(room.unreadCount)) + '</span>'
                 : "";
 
             return (
@@ -221,8 +203,7 @@
 
         listEl.querySelectorAll(".chat-room-item").forEach((button) => {
             button.addEventListener("click", () => {
-                const roomId = Number(button.dataset.roomId);
-                selectRoom(roomId);
+                selectRoom(Number(button.dataset.roomId));
             });
         });
     }
@@ -234,19 +215,12 @@
 
     function scrollMessagesToBottom() {
         const list = activeMessageListEl();
-        if (!list) {
-            return;
-        }
-
-        requestAnimationFrame(() => {
-            list.scrollTop = list.scrollHeight;
-        });
+        if (!list) return;
+        requestAnimationFrame(() => { list.scrollTop = list.scrollHeight; });
     }
 
     function ensureMessageStack(listEl) {
-        if (!listEl) {
-            return null;
-        }
+        if (!listEl) return null;
 
         let stack = listEl.querySelector("[data-chat-message-stack='true']");
         if (!stack) {
@@ -276,15 +250,11 @@
 
     function renderMessages(messages) {
         const list = activeMessageListEl();
-        if (!list) {
-            return;
-        }
+        if (!list) return;
 
         const context = getLoginContext();
         const stack = ensureMessageStack(list);
-        if (!stack) {
-            return;
-        }
+        if (!stack) return;
 
         stack.innerHTML = (messages || []).map((msg) => {
             const mine = Number(msg.senderIdx) === Number(context.memIdx);
@@ -296,15 +266,11 @@
 
     function appendMessage(message) {
         const list = activeMessageListEl();
-        if (!list) {
-            return;
-        }
+        if (!list) return;
 
         const context = getLoginContext();
         const stack = ensureMessageStack(list);
-        if (!stack) {
-            return;
-        }
+        if (!stack) return;
 
         const mine = Number(message.senderIdx) === Number(context.memIdx);
         const wrapper = document.createElement("div");
@@ -321,9 +287,7 @@
     }
 
     function markSelectedRoomRead() {
-        if (!state.selectedRoomId) {
-            return Promise.resolve();
-        }
+        if (!state.selectedRoomId) return Promise.resolve();
 
         return requestJson("/api/chats/rooms/" + state.selectedRoomId + "/read", {
             method: "POST",
@@ -332,25 +296,17 @@
 
     function loadMessages(roomId) {
         return requestJson("/api/chats/rooms/" + roomId + "/messages")
-            .then((data) => {
-                renderMessages(data.messages || []);
-            })
+            .then((data) => { renderMessages(data.messages || []); })
             .catch((error) => {
-                if (error.message !== "NOT_LOGIN") {
-                    renderMessages([]);
-                }
+                if (error.message !== "NOT_LOGIN") renderMessages([]);
             });
     }
 
     function subscribeRoom(roomId) {
-        if (!state.stompClient || !state.stompClient.connected) {
-            return;
-        }
+        if (!state.stompClient || !state.stompClient.connected) return;
 
         const key = String(roomId);
-        if (state.roomSubscriptions.has(key)) {
-            return;
-        }
+        if (state.roomSubscriptions.has(key)) return;
 
         const subscription = state.stompClient.subscribe("/topic/chatroom/" + roomId, (frame) => {
             let message;
@@ -380,20 +336,14 @@
 
     function unsubscribeAllRooms() {
         state.roomSubscriptions.forEach((subscription) => {
-            try {
-                subscription.unsubscribe();
-            } catch (error) {
-                console.warn("[chat] unsubscribe failed", error);
-            }
+            try { subscription.unsubscribe(); }
+            catch (error) { console.warn("[chat] unsubscribe failed", error); }
         });
         state.roomSubscriptions.clear();
     }
 
     function subscribeAllRooms() {
-        if (!state.stompClient || !state.stompClient.connected) {
-            return;
-        }
-
+        if (!state.stompClient || !state.stompClient.connected) return;
         state.rooms.forEach((room) => subscribeRoom(room.chatroomIdx));
     }
 
@@ -439,9 +389,7 @@
 
     function selectRoom(roomId) {
         const room = state.rooms.find((item) => Number(item.chatroomIdx) === Number(roomId));
-        if (!room) {
-            return;
-        }
+        if (!room) return;
 
         state.selectedRoomId = room.chatroomIdx;
         state.selectedRoomName = room.opponentName;
@@ -458,9 +406,7 @@
     }
 
     function sendMessage(content) {
-        if (!state.selectedRoomId || !content.trim()) {
-            return;
-        }
+        if (!state.selectedRoomId || !content.trim()) return;
 
         const context = getLoginContext();
         const payload = {
@@ -476,9 +422,7 @@
 
         requestJson("/api/chats/rooms/" + state.selectedRoomId + "/messages", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ messageContent: content.trim() }),
         }).then((data) => {
             appendMessage(data);
@@ -489,18 +433,14 @@
 
     function connectWebSocket() {
         const context = getLoginContext();
-        if (!context.isLogin) {
-            return;
-        }
+        if (!context.isLogin) return;
 
         if (state.stompClient && state.stompClient.connected) {
             state.isConnected = true;
             return;
         }
 
-        if (typeof SockJS === "undefined" || typeof Stomp === "undefined") {
-            return;
-        }
+        if (typeof SockJS === "undefined" || typeof Stomp === "undefined") return;
 
         const socket = new SockJS("/ws-chat");
         state.stompClient = Stomp.over(socket);
@@ -515,9 +455,7 @@
     }
 
     function adjustTextareaHeight(textarea) {
-        if (!textarea) {
-            return;
-        }
+        if (!textarea) return;
         textarea.style.height = "auto";
         textarea.style.height = Math.min(textarea.scrollHeight, 112) + "px";
     }
@@ -525,16 +463,12 @@
     function bindComposeForm(formId, inputId) {
         const form = el(formId);
         const input = el(inputId);
-        if (!form || !input) {
-            return;
-        }
+        if (!form || !input) return;
 
         form.addEventListener("submit", (event) => {
             event.preventDefault();
             const content = input.value;
-            if (!content || !content.trim()) {
-                return;
-            }
+            if (!content || !content.trim()) return;
 
             sendMessage(content);
             input.value = "";
@@ -567,31 +501,28 @@
 
         fetchRooms(preferredRoomId).then(() => {
             fetchUnreadCount();
-            if (window.feather) {
-                window.feather.replace();
-            }
+            if (window.feather) window.feather.replace();
         });
 
-        if (state.roomPollTimer) {
-            clearInterval(state.roomPollTimer);
-        }
+        if (state.roomPollTimer) clearInterval(state.roomPollTimer);
 
         state.roomPollTimer = window.setInterval(() => {
-            if (!state.isOpen) {
-                return;
-            }
+            if (!state.isOpen) return;
             fetchRooms();
             fetchUnreadCount();
         }, 10000);
     }
 
     function closeChatModal() {
+        // ✅ activeView를 null 처리 전 저장 (WARN #5 수정)
+        const prevView = state.activeView;
+
         state.isOpen = false;
         state.activeView = null;
         state.selectedRoomId = null;
         state.selectedRoomName = "";
 
-        setModalVisibility(false, currentView());
+        setModalVisibility(false, prevView);
         updateViewPanels();
 
         if (state.roomPollTimer) {
@@ -604,22 +535,15 @@
 
     function handleResize() {
         updateScrollButtons();
-
-        if (!state.isOpen) {
-            return;
-        }
+        if (!state.isOpen) return;
 
         const nextView = currentView();
-        if (state.activeView === nextView) {
-            return;
-        }
+        if (state.activeView === nextView) return;
 
         state.activeView = nextView;
         setModalVisibility(true, state.activeView);
         updateViewPanels();
-        if (state.selectedRoomId) {
-            loadMessages(state.selectedRoomId);
-        }
+        if (state.selectedRoomId) loadMessages(state.selectedRoomId);
     }
 
     function bindButtons() {
@@ -629,18 +553,10 @@
         const mobileRoomClose = el("chatMobileRoomCloseBtn");
         const mobileBack = el("chatMobileBackBtn");
 
-        if (floatingBtn) {
-            floatingBtn.addEventListener("click", () => openChatModal());
-        }
-        if (desktopClose) {
-            desktopClose.addEventListener("click", closeChatModal);
-        }
-        if (mobileClose) {
-            mobileClose.addEventListener("click", closeChatModal);
-        }
-        if (mobileRoomClose) {
-            mobileRoomClose.addEventListener("click", closeChatModal);
-        }
+        if (floatingBtn) floatingBtn.addEventListener("click", () => openChatModal());
+        if (desktopClose) desktopClose.addEventListener("click", closeChatModal);
+        if (mobileClose) mobileClose.addEventListener("click", closeChatModal);
+        if (mobileRoomClose) mobileRoomClose.addEventListener("click", closeChatModal);
         if (mobileBack) {
             mobileBack.addEventListener("click", () => {
                 state.selectedRoomId = null;
@@ -654,26 +570,17 @@
     }
 
     function startUnreadPolling() {
-        if (state.unreadPollTimer) {
-            clearInterval(state.unreadPollTimer);
-        }
+        if (state.unreadPollTimer) clearInterval(state.unreadPollTimer);
 
         fetchUnreadCount();
         state.unreadPollTimer = window.setInterval(fetchUnreadCount, 10000);
     }
 
-    window.openChatModal = function () {
-        openChatModal();
-    };
-
+    window.openChatModal = function () { openChatModal(); };
     window.openChatPopup = function (chatroomIdx) {
-        if (!chatroomIdx) {
-            openChatModal();
-            return;
-        }
+        if (!chatroomIdx) { openChatModal(); return; }
         openChatModal(Number(chatroomIdx));
     };
-
     window.scrollToTop = scrollToTop;
     window.scrollToBottom = scrollToBottom;
 
@@ -686,11 +593,9 @@
         window.addEventListener("scroll", updateScrollButtons);
 
         connectWebSocket();
-        fetchRooms();
+        fetchRooms(); // ✅ 여기 한 번만 호출 (loadChatRooms 제거됨)
         startUnreadPolling();
 
-        if (window.feather) {
-            window.feather.replace();
-        }
+        if (window.feather) window.feather.replace();
     });
 })();
