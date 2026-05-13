@@ -61,7 +61,7 @@ public class MemberController {
     @GetMapping("/members/register")
     public String signUp() {
 
-        return "/views/member/signUp";
+        return "views/member/signUp";
     }
 
     // signUp.html - 회원가입 처리 기능
