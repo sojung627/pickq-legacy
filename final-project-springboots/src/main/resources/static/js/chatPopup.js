@@ -592,9 +592,15 @@
         updateScrollButtons();
         window.addEventListener("scroll", updateScrollButtons);
 
-        connectWebSocket();
-        fetchRooms(); // ✅ 여기 한 번만 호출 (loadChatRooms 제거됨)
-        startUnreadPolling();
+        const context = getLoginContext();
+
+        if (context.isLogin) {
+            connectWebSocket();
+            fetchRooms();
+            startUnreadPolling();
+        } else {
+            updateUnreadBadge(0);
+        }
 
         if (window.feather) window.feather.replace();
     });
